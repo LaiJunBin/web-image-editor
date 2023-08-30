@@ -1,0 +1,19 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`TheNavbar > render properly menus 1`] = `
+"<nav class=\\"z-50 select-none bg-neutral-700\\">
+  <ul class=\\"flex items-center justify-start\\">
+    <li class=\\"relative cursor-pointer px-2 py-1 transition hover:bg-zinc-600\\"><span>Parent 1</span>
+      <ul class=\\"absolute left-0 top-full w-max bg-neutral-500\\" style=\\"display: none;\\">
+        <li class=\\"px-2 py-1 transition hover:bg-neutral-400\\"><span>Child 1</span></li>
+        <li class=\\"px-2 py-1 transition hover:bg-neutral-400\\"><span>Child 2</span></li>
+      </ul>
+    </li>
+    <li class=\\"relative cursor-pointer px-2 py-1 transition hover:bg-zinc-600\\"><span>Parent 2</span>
+      <ul class=\\"absolute left-0 top-full w-max bg-neutral-500\\" style=\\"display: none;\\">
+        <li class=\\"px-2 py-1 transition hover:bg-neutral-400\\"><span>Child 3</span></li>
+      </ul>
+    </li>
+  </ul>
+</nav>"
+`;

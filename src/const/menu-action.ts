@@ -1,0 +1,10 @@
+export enum MenuAction {
+  NEW_PROJECT,
+  OPEN_PROJECT,
+  UPLOAD_IMAGE,
+  SAVE_PROJECT,
+  SAVE_IMAGE,
+
+  UNDO,
+  REDO
+}
