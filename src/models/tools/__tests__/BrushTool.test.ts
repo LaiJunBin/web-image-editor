@@ -23,7 +23,7 @@ vi.mock('@/utils/tool', () => {
 })
 
 describe('BrushTool', () => {
-  test('should draw line on canvas', () => {
+  test('should draw line on canvas, and commit history', () => {
     const { setColor, setLineWidth } = useSettingStore()
 
     setColor('#333')

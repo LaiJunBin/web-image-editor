@@ -1,3 +1,5 @@
+import { useHistoryStore } from '@/stores/history'
+
 export function newProject() {
   console.log('new project')
 }
@@ -19,9 +21,11 @@ export function saveImage() {
 }
 
 export function undo() {
-  console.log('undo')
+  const { undo } = useHistoryStore()
+  undo()
 }
 
 export function redo() {
-  console.log('redo')
+  const { redo } = useHistoryStore()
+  redo()
 }

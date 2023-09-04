@@ -1,10 +1,13 @@
+import { useHistoryStore } from '@/stores/history'
 import { MenuAction } from './menu-action'
+import { toRefs } from 'vue'
 
 export interface MenuType<T> {
   text: string
   children: {
     text: string
     action: T
+    disabled?: () => boolean
   }[]
 }
 
@@ -39,11 +42,13 @@ export const menus: MenuType<MenuAction>[] = [
     children: [
       {
         text: '復原',
-        action: MenuAction.UNDO
+        action: MenuAction.UNDO,
+        disabled: () => !useHistoryStore().canUndo
       },
       {
         text: '重做',
-        action: MenuAction.REDO
+        action: MenuAction.REDO,
+        disabled: () => !useHistoryStore().canRedo
       }
     ]
   }

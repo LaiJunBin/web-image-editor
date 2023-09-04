@@ -45,8 +45,12 @@ const emit = defineEmits<{
             v-for="child in item.children"
             :key="child.text"
             class="px-2 py-1 transition hover:bg-neutral-400"
+            :class="{ 'cursor-no-drop opacity-50 hover:!bg-neutral-500': child.disabled?.() }"
             @click.stop="
               () => {
+                if (child.disabled?.()) {
+                  return
+                }
                 emit('menu-action', child.action)
                 selectedMenu = null
               }

@@ -34,6 +34,23 @@ const menus: MenuType<TestMenuAction>[] = [
   }
 ]
 
+const disableMenus: MenuType<TestMenuAction>[] = [
+  {
+    text: 'Parent 1',
+    children: [
+      {
+        text: 'Child 1',
+        action: TestMenuAction.CHILD1
+      },
+      {
+        text: 'Disabled Child',
+        action: TestMenuAction.CHILD2,
+        disabled: () => true
+      }
+    ]
+  }
+]
+
 describe('TheNavbar', () => {
   test('render properly menus', async () => {
     const wrapper = shallowMount(TheNavbarVue<TestMenuAction>, {
@@ -130,5 +147,29 @@ describe('TheNavbar', () => {
     window.dispatchEvent(new Event('click'))
     await nextTick()
     expect(targetSubMenu.isVisible()).toBeTruthy()
+  })
+
+  test('disabled menu item', async () => {
+    const disabledClasses = 'cursor-no-drop opacity-50 hover:!bg-neutral-500'.split(' ')
+    const wrapper = shallowMount(TheNavbarVue<TestMenuAction>, {
+      attachTo: document.body,
+      props: {
+        menus: disableMenus
+      }
+    })
+
+    const targetMenu = wrapper.findAll('li').find((li) => li.text().match(disableMenus[0].text))
+    expect(targetMenu).toBeDefined()
+
+    const targetItem = targetMenu!
+      .findAll('li')
+      .find((li) => li.text().match(disableMenus[0].children[1].text))
+
+    expect(targetItem).toBeDefined()
+    expect(disabledClasses.every((className) => targetItem!.classes().includes(className))).toBe(
+      true
+    )
+    await targetItem?.trigger('click')
+    expect(wrapper.emitted('menu-action')).toBeUndefined()
   })
 })
