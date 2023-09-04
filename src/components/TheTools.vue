@@ -1,15 +1,28 @@
-<script setup lang="ts" generic="T">
+<script setup lang="ts">
 import { Tool } from '@/models/Tool'
-import { toolStoreFactory } from '@/stores/tool'
+import { useSettingStore } from '@/stores/setting'
+import { useToolStore } from '@/stores/tool'
 import { toRefs } from 'vue'
 
 const props = defineProps<{
-  tools: Tool<T>[]
+  tools: Tool[]
 }>()
 const { tools } = toRefs(props)
 
-const useToolStore = toolStoreFactory<T>()
 const { setTool } = useToolStore()
+const { color } = toRefs(useSettingStore())
+
+const openColorPicker = () => {
+  const input = document.createElement('input')
+  input.type = 'color'
+  input.value = color.value.replace(/rgba\((\d+), (\d+), (\d+), (\d+)\)/, (match, r, g, b, a) => {
+    return `#${parseInt(r).toString(16)}${parseInt(g).toString(16)}${parseInt(b).toString(16)}`
+  })
+  input.addEventListener('input', () => {
+    color.value = input.value
+  })
+  input.click()
+}
 </script>
 
 <template>
@@ -25,5 +38,8 @@ const { setTool } = useToolStore()
     >
       <component :is="tool.component" />
     </button>
+    <div class="flex h-8 w-10 items-center justify-center bg-neutral-700">
+      <div class="h-6 w-6" :style="`background-color: ${color}`" @click="openColorPicker"></div>
+    </div>
   </div>
 </template>

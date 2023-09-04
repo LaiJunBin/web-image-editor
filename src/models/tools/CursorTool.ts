@@ -1,10 +1,9 @@
 import { Tool } from '@/models/Tool'
 import type { Component } from 'vue'
 import type { Control } from '../Control'
-import type { ToolOptions } from '@/models/Tool'
 import TheCursorTool from '@/components/tools/TheCursorTool.vue'
 
-class CursorTool extends Tool<ToolOptions> {
+class CursorTool extends Tool {
   constructor(component: Component, controls: Control[] = []) {
     super('選取工具', component, controls)
   }

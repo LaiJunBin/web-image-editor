@@ -1,8 +1,7 @@
 import { toRaw, toRefs } from 'vue'
-import { TestTool, TestToolComponent, type TestToolOptions } from '@/tests/tool'
-import { toolStoreFactory } from '../tool'
+import { TestTool, TestToolComponent } from '@/tests/tool'
+import { useToolStore } from '../tool'
 
-const useToolStore = toolStoreFactory<TestToolOptions>()
 describe('tool store', () => {
   test('tool is reactive', () => {
     const { tool, setTool } = toRefs(useToolStore())

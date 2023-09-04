@@ -2,37 +2,78 @@ import TheBrushTool from '@/components/tools/TheBrushTool.vue'
 import { Tool } from '@/models/Tool'
 import type { Component } from 'vue'
 import type { Control } from '../Control'
-import type { ToolOptions } from '@/models/Tool'
 import PaletteControl from '../controls/PaletteControl'
+import { useLayerStore } from '@/stores/layer'
+import LineWidthControl from '../controls/LineWidthControl'
+import { draw } from '@/utils/tool'
+import { useSettingStore } from '@/stores/setting'
 
-class BrushTool extends Tool<ToolOptions> {
+class BrushTool extends Tool {
+  drawing: boolean
+  x: number
+  y: number
+
   constructor(component: Component, controls: Control[] = []) {
     super('筆刷工具', component, controls)
+    this.drawing = false
+    this.x = 0
+    this.y = 0
+  }
+
+  private draw(startX: number, startY: number, endX: number, endY: number) {
+    const { color, lineWidth } = useSettingStore()
+    const { recordLayer } = useLayerStore()
+    if (!recordLayer) return
+    const { ctx } = recordLayer
+
+    draw(ctx, {
+      startX,
+      startY,
+      endX,
+      endY,
+      color,
+      lineWidth
+    })
   }
 
   mouseover(e: MouseEvent) {
-    console.log('mouseover')
+    this.x = e.offsetX
+    this.y = e.offsetY
   }
 
   mousedown(e: MouseEvent) {
-    console.log('mousedown')
+    this.drawing = true
+    this.x = e.offsetX
+    this.y = e.offsetY
   }
 
   mousemove(e: MouseEvent) {
-    console.log('mousemove')
+    const { recordLayer } = useLayerStore()
+    if (this.drawing) {
+      this.draw(this.x, this.y, e.offsetX, e.offsetY)
+      recordLayer?.save()
+    }
+
+    this.mousePreview(e)
+    this.x = e.offsetX
+    this.y = e.offsetY
   }
 
   mouseup(e: MouseEvent) {
-    console.log('mouseup')
+    this.drawing = false
   }
 
   mouseout(e: MouseEvent) {
-    console.log('mouseout')
+    const { recordLayer } = useLayerStore()
+    recordLayer?.restore()
   }
 
   mousePreview(e: MouseEvent) {
-    console.log('mousePreview')
+    const { recordLayer } = useLayerStore()
+    if (!recordLayer) return
+    recordLayer.restore()
+    this.draw(this.x, this.y, e.offsetX, e.offsetY)
   }
 }
 
-export default new BrushTool(TheBrushTool, [PaletteControl])
+export default new BrushTool(TheBrushTool, [PaletteControl, LineWidthControl])

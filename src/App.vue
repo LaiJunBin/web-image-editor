@@ -5,15 +5,22 @@ import { menus } from './const/menus'
 import { createMenuAction } from './actions/menu-action'
 import { DEFAULT_TOOL, tools } from './const/tools'
 import TheControls from './components/TheControls.vue'
-import { toolStoreFactory } from './stores/tool'
 import { toRefs } from 'vue'
-import type { ToolOptions } from './models/Tool'
+import TheCanvas from './components/TheCanvas.vue'
+import { useSettingStore } from './stores/setting'
+import { useLayerStore } from './stores/layer'
+import { useToolStore } from './stores/tool'
 
 const menuAction = createMenuAction()
 
-const useToolStore = toolStoreFactory<ToolOptions>()
 const { tool, setTool } = toRefs(useToolStore())
 setTool.value(DEFAULT_TOOL)
+
+const { initSettings } = useSettingStore()
+const { initLayers } = useLayerStore()
+
+initSettings(640, 480)
+initLayers('#fff')
 </script>
 
 <template>
@@ -24,6 +31,7 @@ setTool.value(DEFAULT_TOOL)
       style="grid-area: TheNavbar"
     />
     <TheTools :tools="tools" style="grid-area: TheTools" />
+    <TheCanvas style="grid-area: TheCanvas" />
     <TheControls :tool="tool" style="grid-area: TheControls" />
   </section>
 </template>

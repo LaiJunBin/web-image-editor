@@ -1,10 +1,9 @@
 import { Tool } from '@/models/Tool'
 import type { Component } from 'vue'
 import type { Control } from '../Control'
-import type { ToolOptions } from '@/models/Tool'
 import ThePaintBucketTool from '@/components/tools/ThePaintBucketTool.vue'
 
-class PaintBucketTool extends Tool<ToolOptions> {
+class PaintBucketTool extends Tool {
   constructor(component: Component, controls: Control[] = []) {
     super('油漆桶工具', component, controls)
   }

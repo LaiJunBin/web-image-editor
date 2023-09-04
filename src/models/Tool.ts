@@ -1,15 +1,9 @@
 import { toRaw, type Component, toRefs, markRaw } from 'vue'
 import type { Control } from './Control'
 import LayerControl from './controls/LayerControl'
-import { toolStoreFactory } from '@/stores/tool'
+import { useToolStore } from '@/stores/tool'
 
-export type ToolOptions = {
-  ctx: CanvasRenderingContext2D
-  color: string
-  lineWidth: number
-}
-
-export abstract class Tool<T> {
+export abstract class Tool {
   public name: string
   public component: Component
   public controls: Control[]
@@ -21,16 +15,15 @@ export abstract class Tool<T> {
   }
 
   get isActive(): boolean {
-    const useToolStore = toolStoreFactory<T>()
     const { tool } = toRefs(useToolStore())
     return toRaw(tool.value) === toRaw(this)
   }
 
-  abstract mouseover(e: MouseEvent, options: T): void
-  abstract mousedown(e: MouseEvent, options: T): void
-  abstract mousemove(e: MouseEvent, options: T): void
-  abstract mouseup(e: MouseEvent, options: T): void
-  abstract mouseout(e: MouseEvent, options: T): void
+  abstract mouseover(e: MouseEvent): void
+  abstract mousedown(e: MouseEvent): void
+  abstract mousemove(e: MouseEvent): void
+  abstract mouseup(e: MouseEvent): void
+  abstract mouseout(e: MouseEvent): void
 
-  abstract mousePreview(e: MouseEvent, options: T): void
+  abstract mousePreview(e: MouseEvent): void
 }

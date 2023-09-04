@@ -1,10 +1,9 @@
 import { Tool } from '@/models/Tool'
 import type { Component } from 'vue'
 import type { Control } from '../Control'
-import type { ToolOptions } from '@/models/Tool'
 import TheSealTool from '@/components/tools/TheSealTool.vue'
 
-class SealTool extends Tool<ToolOptions> {
+class SealTool extends Tool {
   constructor(component: Component, controls: Control[] = []) {
     super('樣章工具', component, controls)
   }

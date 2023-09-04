@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type { Tool } from '@/models/Tool'
-import type { ToolOptions } from '@/models/Tool'
 import { toRefs } from 'vue'
 
 interface Props {
-  tool: Tool<ToolOptions>
+  tool: Tool
 }
 
 const props = defineProps<Props>()
