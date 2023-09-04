@@ -31,11 +31,16 @@ describe('TheCanvas', () => {
     const ctx = canvas.element.getContext('2d') as CanvasRenderingContext2D
     const imageData = ctx.createImageData(100, 100)
     imageData.data.fill(255)
-    recordLayer.value!.ctx.getImageData = vi.fn().mockReturnValueOnce(imageData)
-    recordLayer.value!.commit()
+    recordLayer.value!.ctx.getImageData = vi
+      .fn(recordLayer.value!.ctx.getImageData)
+      .mockReturnValueOnce(imageData)
 
+    expect(currentLayer.value?.objects.length).toBe(0)
+    recordLayer.value!.commit()
     expect(currentLayer.value?.objects.length).toBe(1)
     expect(currentLayer.value?.objects[0]).toStrictEqual(imageData)
-    expect(ctx.getImageData(0, 0, 100, 100).data.every((value) => value === 0)).toBe(true)
+    expect(
+      recordLayer.value!.ctx.getImageData(0, 0, 100, 100).data.every((value) => value === 0)
+    ).toBe(true)
   })
 })
