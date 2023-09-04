@@ -19,7 +19,9 @@ const openColorPicker = () => {
     return `#${parseInt(r).toString(16)}${parseInt(g).toString(16)}${parseInt(b).toString(16)}`
   })
   input.addEventListener('input', () => {
-    color.value = input.value
+    color.value = input.value.replace(/#(\w{2})(\w{2})(\w{2})/, (match, r, g, b) => {
+      return `rgba(${parseInt(r, 16)}, ${parseInt(g, 16)}, ${parseInt(b, 16)}, 255)`
+    })
   })
   input.click()
 }
