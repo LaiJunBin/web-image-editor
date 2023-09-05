@@ -18,7 +18,7 @@ const { tool } = toRefs(props)
     <hr class="my-2" />
     <template v-for="(control, i) in tool.controls" :key="i">
       <component :is="control.component" />
-      <hr v-if="i + 1 < tool.controls.length" class="my-2 border-neutral-700" />
+      <hr v-if="!control.hidden && i + 1 < tool.controls.length" class="my-2 border-neutral-700" />
     </template>
   </div>
 </template>
