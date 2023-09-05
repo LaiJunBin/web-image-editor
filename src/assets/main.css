@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-  @apply select-none text-white;
+  @apply select-none overflow-hidden text-white;
 
   background: #565656;
 }
