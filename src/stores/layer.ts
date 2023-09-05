@@ -4,9 +4,11 @@ import { RecordLayer } from '@/models/layers/RecordLayer'
 import { defineStore } from 'pinia'
 import { computed, reactive, ref, type Ref } from 'vue'
 import { useHistoryStore } from './history'
+import { useBlockStore } from './block'
 
 export const useLayerStore = defineStore('layer', () => {
   const { commitHistory } = useHistoryStore()
+  const { setBlock } = useBlockStore()
 
   const counter = ref(0)
   const backgroundLayer = ref<BackgroundLayer>() as Ref<BackgroundLayer>
@@ -31,14 +33,14 @@ export const useLayerStore = defineStore('layer', () => {
     commitHistory(
       () => {
         layers.push(layer)
-        currentLayer.value = layer
+        selectedLayer(layer)
       },
       () => {
         const index = layers.indexOf(layer)
         if (index > -1) {
           layers.splice(index, 1)
         }
-        currentLayer.value = layers[layers.length - 1]
+        selectedLayer(layers[layers.length - 1])
         counter.value--
       }
     )
@@ -61,6 +63,7 @@ export const useLayerStore = defineStore('layer', () => {
   }
 
   const selectedLayer = (layer: Layer) => {
+    setBlock(null)
     currentLayer.value = layer
   }
   return {

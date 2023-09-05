@@ -22,9 +22,9 @@ onUnmounted(() => {
 
 <template>
   <canvas
-    @mouseover="tool.mouseover"
-    @mousedown="tool.mousedown"
-    @mousemove="tool.mousemove"
-    @mouseout="tool.mouseout"
+    @mouseover.stop="tool.mouseover"
+    @mousedown.stop="tool.mousedown"
+    @mousemove.stop="tool.mousemove"
+    @mouseout.stop="tool.mouseout"
   />
 </template>

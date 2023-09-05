@@ -1,5 +1,6 @@
 import { markRaw, type Component } from 'vue'
 import TheLayer from '@/components/canvas/TheLayer.vue'
+import type { LayerObject } from './LayerObject'
 
 export class Layer {
   private _ref: HTMLCanvasElement | null
@@ -10,7 +11,7 @@ export class Layer {
   public ctx: CanvasRenderingContext2D
   public previewUrl: string
   public imageData: ImageData | null
-  public objects: ImageData[]
+  public objects: LayerObject[]
   public visible: boolean
   public reorderable: boolean
   public deleteable: boolean
@@ -91,14 +92,14 @@ export class Layer {
     if (!this.ctx) return
     this.init()
 
-    const canvas = document.createElement('canvas')
-    canvas.width = this.ctx.canvas.width
-    canvas.height = this.ctx.canvas.height
-    const ctx = canvas.getContext('2d')!
-
     this.objects.forEach((object) => {
-      ctx.putImageData(object, 0, 0)
-      this.ctx.drawImage(canvas, 0, 0)
+      const { canvas, x, y, width, height, angle } = object
+      this.ctx.save()
+      this.ctx.translate(x + width / 2, y + height / 2)
+      this.ctx.rotate(angle)
+      this.ctx.translate(-(x + width / 2), -(y + height / 2))
+      this.ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, x, y, width, height)
+      this.ctx.restore()
     })
     this.save()
   }
