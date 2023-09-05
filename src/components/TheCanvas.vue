@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useLayerStore } from '@/stores/layer'
 import { useSettingStore } from '@/stores/setting'
-import { toRefs } from 'vue'
+import { toRaw, toRefs } from 'vue'
 import { Layer } from '@/models/Layer'
 
 const { layers } = toRefs(useLayerStore())
@@ -12,7 +12,6 @@ const createLayerRef = (layer: Layer) => {
     if (!e) {
       return
     }
-
     const { $el } = e
     layer.ref = $el
     layer.init()
@@ -31,7 +30,7 @@ const createLayerRef = (layer: Layer) => {
           :width="settings.width"
           :height="settings.height"
           :style="{ zIndex: layer.order }"
-          :ref="createLayerRef(layer as Layer)"
+          :ref="createLayerRef(toRaw(layer) as Layer)"
         />
       </template>
     </section>
