@@ -3,7 +3,9 @@ import type { Layer } from '@/models/Layer'
 import { useLayerStore } from '@/stores/layer'
 import { ref, toRefs } from 'vue'
 
-const { sortedLayers, currentLayer, addLayer, destroyLayer } = toRefs(useLayerStore())
+const { sortedLayers, currentLayer, addLayer, selectedLayer, destroyLayer } = toRefs(
+  useLayerStore()
+)
 const dragLayer = ref<Layer | null>(null)
 
 const onDragstart = (layer: Layer) => {
@@ -43,7 +45,7 @@ const onDrop = () => {
         v-if="layer.visible"
         class="flex cursor-pointer select-none items-center border border-neutral-500"
         :class="{ 'bg-neutral-600': currentLayer === layer }"
-        @click="currentLayer = layer"
+        @click="selectedLayer(layer)"
         :draggable="layer.reorderable"
         @dragstart="onDragstart(layer as Layer)"
         @dragover.prevent="onDragover(layer as Layer)"
