@@ -7,6 +7,7 @@ export abstract class Tool {
   public name: string
   public component: Component
   public controls: Control[]
+  public autoCommit: boolean = true
 
   constructor(name: string, component: Component, controls: Control[] = []) {
     this.name = name

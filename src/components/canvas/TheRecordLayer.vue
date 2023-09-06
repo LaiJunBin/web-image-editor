@@ -8,7 +8,9 @@ const { tool } = toRefs(useToolStore())
 
 const onMouseup = (e: MouseEvent) => {
   tool.value?.mouseup(e)
-  recordLayer.value?.commit()
+  if (tool.value.autoCommit) {
+    recordLayer.value?.commit()
+  }
 }
 
 onMounted(() => {
