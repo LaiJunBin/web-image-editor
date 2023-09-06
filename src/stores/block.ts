@@ -69,6 +69,7 @@ class Block {
 
 export const useBlockStore = defineStore('block', () => {
   const block = ref<Block | null>()
+  const tempBlock = ref<Block | null>()
 
   const setBlock = (object: LayerObject | null) => {
     if (!object) {
@@ -80,5 +81,14 @@ export const useBlockStore = defineStore('block', () => {
     block.value = new Block(object)
   }
 
-  return { block, setBlock }
+  const setTempBlock = (object: LayerObject | null) => {
+    if (!object) {
+      tempBlock.value = null
+      return
+    }
+
+    tempBlock.value = new Block(object)
+  }
+
+  return { block, setBlock, tempBlock, setTempBlock }
 })

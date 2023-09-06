@@ -12,6 +12,8 @@ export class LayerObject {
   public canvas: HTMLCanvasElement
   public ctx: CanvasRenderingContext2D
 
+  public invalid: boolean = false
+
   constructor(imageData: ImageData, x: number, y: number, width: number, height: number) {
     this.imageData = imageData
 
@@ -68,6 +70,11 @@ export class LayerObject {
     this.imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
 
     const { left, top, width, height } = getLayerObjectBoundingRect(this.imageData)
+    if (!isFinite(left) || !isFinite(top) || !isFinite(width) || !isFinite(height)) {
+      this.invalid = true
+      return
+    }
+
     this.x = left
     this.y = top
     this.width = width

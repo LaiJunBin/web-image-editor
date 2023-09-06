@@ -57,3 +57,12 @@ export function base64ToImageData(base64: string) {
     }
   })
 }
+
+export function cloneCanvas(canvas: HTMLCanvasElement) {
+  const newCanvas = document.createElement('canvas')
+  newCanvas.width = canvas.width
+  newCanvas.height = canvas.height
+  const ctx = newCanvas.getContext('2d')!
+  ctx.drawImage(canvas, 0, 0)
+  return newCanvas
+}

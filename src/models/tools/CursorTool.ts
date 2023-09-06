@@ -1,12 +1,13 @@
 import { Tool } from '@/models/Tool'
-import { type Component } from 'vue'
+import { ref, type Component, toRefs } from 'vue'
 import type { Control } from '../Control'
 import TheCursorTool from '@/components/tools/TheCursorTool.vue'
 import { useLayerStore } from '@/stores/layer'
 import { useBlockStore } from '@/stores/block'
 import CursorControl from '../controls/CursorControl'
-import type { LayerObject } from '../LayerObject'
+import { LayerObject } from '../LayerObject'
 import { useHistoryStore } from '@/stores/history'
+import { cloneCanvas } from '@/utils'
 
 export class CursorTool extends Tool {
   resizing: number
@@ -72,10 +73,12 @@ export class CursorTool extends Tool {
     if (!block) return
 
     if (!this.rollbackFn) {
-      const { x, y } = block
+      const { x, y, width, height } = block
       this.rollbackFn = () => {
         block.x = x
         block.y = y
+        block.width = width
+        block.height = height
         currentLayer!.render()
         setBlock(block.object)
       }
@@ -142,7 +145,7 @@ export class CursorTool extends Tool {
 
   private rotate(e: MouseEvent) {
     const { currentLayer, recordLayer } = useLayerStore()
-    const { block, setBlock } = useBlockStore()
+    const { block, setBlock, tempBlock, setTempBlock } = useBlockStore()
     if (!block) return
 
     const { left, top } = recordLayer!.ctx.canvas.getBoundingClientRect()
@@ -157,6 +160,7 @@ export class CursorTool extends Tool {
     const angle = Math.atan2(offsetY - centerY, offsetX - centerX)
 
     if (this.startAngle === null) {
+      setTempBlock(block.object)
       this.startAngle = angle - block.object.angle
     }
     const newAngle = angle - this.startAngle
@@ -169,6 +173,10 @@ export class CursorTool extends Tool {
     }
 
     this.rollbackFn = () => {
+      block.x = tempBlock!.x
+      block.y = tempBlock!.y
+      block.width = tempBlock!.width
+      block.height = tempBlock!.height
       setBlock(block!.object)
       block!.angle = -newAngle
       currentLayer!.render()
@@ -201,13 +209,23 @@ export class CursorTool extends Tool {
     const originalCommitFn = this.commitFn
     const originalRollbackFn = this.rollbackFn
 
+    const beforeCtx = ref<CanvasRenderingContext2D | null>(null)
     this.commitFn = () => {
       originalCommitFn()
       const { currentLayer } = useLayerStore()
-      const { block, setBlock } = useBlockStore()
-      block?.object.update()
+      const { block, setBlock } = toRefs(useBlockStore())
+      const canvas = cloneCanvas(block.value?.object.canvas!)
+      const ctx = canvas.getContext('2d')!
+      beforeCtx.value = ctx
+
+      block.value?.object.update()
       currentLayer!.render()
-      setBlock(block!.object)
+
+      if (block.value?.object.invalid) {
+        setBlock.value(null)
+      } else {
+        setBlock.value(block.value!.object)
+      }
     }
 
     this.rollbackFn = () => {
@@ -215,7 +233,15 @@ export class CursorTool extends Tool {
       const { currentLayer } = useLayerStore()
       const { block, setBlock } = useBlockStore()
       block?.object.update()
+      block!.x = block?.x!
+      block!.y = block?.y!
+      block!.width = block?.width!
+      block!.height = block?.height!
+      block!.object.canvas = beforeCtx.value?.canvas!
+      block!.object.ctx = beforeCtx.value!
+      block!.object.invalid = false
       currentLayer!.render()
+
       setBlock(block!.object)
     }
 
