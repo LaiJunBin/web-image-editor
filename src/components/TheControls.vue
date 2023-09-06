@@ -11,7 +11,7 @@ const { tool } = toRefs(props)
 </script>
 
 <template>
-  <div class="z-30 h-full bg-neutral-700 px-4">
+  <div class="z-30 h-full overflow-auto bg-neutral-700 px-4">
     <h1 class="border border-neutral-500 px-4 py-2 text-center text-2xl font-bold">
       {{ tool.name }}
     </h1>
