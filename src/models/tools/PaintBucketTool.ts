@@ -25,7 +25,10 @@ class PaintBucketTool extends Tool {
     const { data: baseData } = baseImageData
     const baseIndex = (offsetY * imageData.width + offsetX) * 4
     const baseColor = baseData.slice(baseIndex, baseIndex + 4)
-    const fillColor = color.split(',').map((v) => parseInt(v))
+    const fillColor = color
+      .match(/rgba\((\d+), (\d+), (\d+), (\d+)\)/)!
+      .slice(1)
+      .map(Number)
 
     const queue: [number, number][] = [[offsetY, offsetX]]
     const visited: boolean[][] = Array.from({ length: imageData.height }, () =>
