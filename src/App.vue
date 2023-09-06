@@ -5,22 +5,24 @@ import { menus } from './const/menus'
 import { createMenuAction } from './actions/menu-action'
 import { DEFAULT_TOOL, tools } from './const/tools'
 import TheControls from './components/TheControls.vue'
-import { toRefs } from 'vue'
+import { toRaw, toRefs } from 'vue'
 import TheCanvas from './components/TheCanvas.vue'
+import { useToolStore } from './stores/tool'
 import { useSettingStore } from './stores/setting'
 import { useLayerStore } from './stores/layer'
-import { useToolStore } from './stores/tool'
+import { useModalStore } from './stores/modal'
 
 const menuAction = createMenuAction()
 
 const { tool, setTool } = toRefs(useToolStore())
-setTool.value(DEFAULT_TOOL)
-
 const { initSettings } = useSettingStore()
 const { initLayers } = useLayerStore()
+const { modal } = toRefs(useModalStore())
 
 initSettings(640, 480)
 initLayers('#fff')
+
+setTool.value(DEFAULT_TOOL)
 </script>
 
 <template>
@@ -34,6 +36,8 @@ initLayers('#fff')
     <TheCanvas style="grid-area: TheCanvas" />
     <TheControls :tool="tool" style="grid-area: TheControls" />
   </section>
+
+  <component :is="toRaw(modal)" v-if="modal" />
 </template>
 
 <style scoped>

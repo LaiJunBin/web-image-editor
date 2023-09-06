@@ -1,7 +1,10 @@
+import NewProjectModalVue from '@/components/modals/NewProjectModal.vue'
+import { useModalStore } from '@/stores/modal'
 import { useHistoryStore } from '@/stores/history'
 
 export function newProject() {
-  console.log('new project')
+  const { openModal } = useModalStore()
+  openModal(NewProjectModalVue)
 }
 
 export function openProject() {
