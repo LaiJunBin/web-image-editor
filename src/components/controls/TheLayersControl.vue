@@ -32,7 +32,7 @@ const onDrop = () => {
     <span class="text-2xl font-bold">圖層</span>
     <button
       class="ml-2 flex h-6 w-6 items-center justify-center rounded-sm border border-neutral-500 transition hover:bg-neutral-600"
-      @click="addLayer"
+      @click="() => addLayer()"
     >
       +
     </button>
