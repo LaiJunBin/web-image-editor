@@ -4,6 +4,7 @@ import { Layer } from '@/models/Layer'
 import { BackgroundLayer } from '@/models/layers/BackgroundLayer'
 import { RecordLayer } from '@/models/layers/RecordLayer'
 import { useHistoryStore } from '../history'
+import { useSettingStore } from '../setting'
 
 const mockCommitHistory = vi.fn()
 vi.mock('@/stores/history', async () => {
@@ -25,12 +26,14 @@ vi.mock('@/stores/history', async () => {
 describe('layer store', () => {
   beforeEach(() => {
     mockCommitHistory.mockClear()
+    const { initSettings } = useSettingStore()
+    initSettings(100, 100)
   })
 
   describe('initLayers', () => {
     it('should contain background layer and record layer', () => {
-      const { layers, initLayers } = toRefs(useLayerStore())
-      initLayers.value('#333')
+      const { layers, initLayersFromColor } = toRefs(useLayerStore())
+      initLayersFromColor.value('#333')
       expect(layers.value.length).toBe(2)
       expect(
         layers.value.filter(
@@ -40,26 +43,32 @@ describe('layer store', () => {
     })
 
     it('should set correct background color', () => {
-      const { backgroundLayer, initLayers } = toRefs(useLayerStore())
-      const color1 = '#333'
-      initLayers.value(color1)
-      expect(toRaw(backgroundLayer.value.color)).toBe(color1)
-      const color2 = '#666'
-      initLayers.value(color2)
-      expect(toRaw(backgroundLayer.value.color)).toBe(color2)
+      const { initLayersFromColor, backgroundLayer } = toRefs(useLayerStore())
+      const cvs = document.createElement('canvas')
+      const ctx = cvs.getContext('2d')!
+      const getContext = vi.fn(() => ({
+        ...ctx,
+        getImageData: vi.fn(() => ({ data: [1, 2, 3, 4] }))
+      }))
+      vi.spyOn(document, 'createElement').mockReturnValue({ getContext } as any)
+
+      const color1 = '#333333'
+      initLayersFromColor.value(color1)
+      expect(getContext.mock.results[0].value.fillStyle).toBe(color1)
+      expect(backgroundLayer.value.backgroundImageData.data).toStrictEqual([1, 2, 3, 4])
     })
 
     it('should select background layer', () => {
-      const { currentLayer, initLayers } = toRefs(useLayerStore())
-      initLayers.value('#333')
+      const { currentLayer, initLayersFromColor } = toRefs(useLayerStore())
+      initLayersFromColor.value('#333')
       expect(toRaw(currentLayer.value)).toBeInstanceOf(BackgroundLayer)
     })
   })
 
   describe('addLayer', () => {
     it('should add a new layer and select it', () => {
-      const { layers, currentLayer, initLayers, addLayer } = toRefs(useLayerStore())
-      initLayers.value('#333')
+      const { layers, currentLayer, initLayersFromColor, addLayer } = toRefs(useLayerStore())
+      initLayersFromColor.value('#333')
       addLayer.value()
 
       expect(layers.value.length).toBe(3)
@@ -74,9 +83,9 @@ describe('layer store', () => {
 
     it('should can undo and redo', () => {
       const { undo, redo } = useHistoryStore()
-      const { initLayers, layers, addLayer } = toRefs(useLayerStore())
+      const { initLayersFromColor, layers, addLayer } = toRefs(useLayerStore())
 
-      initLayers.value('#333')
+      initLayersFromColor.value('#333')
       expect(layers.value.length).toBe(2)
       addLayer.value()
       const layer = layers.value[2]
@@ -92,8 +101,8 @@ describe('layer store', () => {
 
   describe('destroyLayer', () => {
     it('should destroy correct layer and commit history', () => {
-      const { layers, initLayers, addLayer, destroyLayer } = toRefs(useLayerStore())
-      initLayers.value('#333')
+      const { layers, initLayersFromColor, addLayer, destroyLayer } = toRefs(useLayerStore())
+      initLayersFromColor.value('#333')
       addLayer.value()
       addLayer.value()
       addLayer.value()
@@ -109,10 +118,10 @@ describe('layer store', () => {
     })
 
     it('should can undo and redo', () => {
-      const { layers, initLayers, addLayer, destroyLayer } = toRefs(useLayerStore())
+      const { layers, initLayersFromColor, addLayer, destroyLayer } = toRefs(useLayerStore())
       const { undo, redo } = useHistoryStore()
 
-      initLayers.value('#333')
+      initLayersFromColor.value('#333')
       addLayer.value()
       addLayer.value()
       addLayer.value()
@@ -136,8 +145,10 @@ describe('layer store', () => {
 
   describe('selectedLayer', () => {
     it('should select correct layer', () => {
-      const { layers, currentLayer, initLayers, addLayer, selectedLayer } = toRefs(useLayerStore())
-      initLayers.value('#333')
+      const { layers, currentLayer, initLayersFromColor, addLayer, selectedLayer } = toRefs(
+        useLayerStore()
+      )
+      initLayersFromColor.value('#333')
       expect(toRaw(currentLayer.value)).toBeInstanceOf(BackgroundLayer)
       addLayer.value()
       selectedLayer.value(layers.value[2] as Layer)
@@ -147,8 +158,8 @@ describe('layer store', () => {
 
   describe('sortedLayers', () => {
     it('should sort layers by order', () => {
-      const { layers, initLayers, addLayer, sortedLayers } = toRefs(useLayerStore())
-      initLayers.value('#333')
+      const { layers, initLayersFromColor, addLayer, sortedLayers } = toRefs(useLayerStore())
+      initLayersFromColor.value('#333')
       addLayer.value()
       addLayer.value()
       addLayer.value()

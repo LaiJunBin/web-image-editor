@@ -7,10 +7,10 @@ import { useLayerStore } from '@/stores/layer'
 describe('TheCanvas', () => {
   test('should render with correct setting', () => {
     const { initSettings, settings } = toRefs(useSettingStore())
-    const { initLayers } = toRefs(useLayerStore())
+    const { initLayersFromColor } = toRefs(useLayerStore())
 
     initSettings.value(100, 100)
-    initLayers.value('#333')
+    initLayersFromColor.value('#333')
 
     const wrapper = mount(TheCanvasVue)
 
@@ -21,10 +21,10 @@ describe('TheCanvas', () => {
 
   test('commit should clear canvas and write to current layer', () => {
     const { initSettings } = useSettingStore()
-    const { recordLayer, currentLayer, initLayers } = toRefs(useLayerStore())
+    const { recordLayer, currentLayer, initLayersFromColor } = toRefs(useLayerStore())
 
     initSettings(100, 100)
-    initLayers.value('#333')
+    initLayersFromColor.value('#333')
 
     const wrapper = mount(TheCanvasVue)
     const canvas = wrapper.find('canvas')
