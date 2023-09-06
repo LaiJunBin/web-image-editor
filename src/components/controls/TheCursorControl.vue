@@ -5,12 +5,11 @@ import { useLayerStore } from '@/stores/layer'
 import { useToolStore } from '@/stores/tool'
 import { toRef, toRefs, type Ref, onMounted, onUnmounted, computed } from 'vue'
 
-const { recordLayer } = toRefs(useLayerStore())
-const { left: offsetX, top: offsetY } = recordLayer.value!.ctx.canvas.getBoundingClientRect()
+const { offsetX, offsetY } = toRefs(useLayerStore())
 
 const { block } = toRefs(useBlockStore())
-const blockX = computed(() => block.value!.x + offsetX)
-const blockY = computed(() => block.value!.y + offsetY)
+const blockX = computed(() => block.value!.x + offsetX.value)
+const blockY = computed(() => block.value!.y + offsetY.value)
 
 const tool = toRef(useToolStore(), 'tool') as Ref<typeof CursorTool>
 

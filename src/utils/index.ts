@@ -32,3 +32,28 @@ export function getLayerObjectBoundingRect(imageData: ImageData) {
     height
   }
 }
+
+export function imageData2Base64(imageData: ImageData) {
+  const canvas = document.createElement('canvas')
+  canvas.width = imageData.width
+  canvas.height = imageData.height
+  const ctx = canvas.getContext('2d')!
+  ctx.putImageData(imageData, 0, 0)
+  return canvas.toDataURL()
+}
+
+export function base64ToImageData(base64: string) {
+  const img = new Image()
+  img.src = base64
+  return new Promise<ImageData>((resolve) => {
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      const ctx = canvas.getContext('2d')!
+      canvas.width = img.width
+      canvas.height = img.height
+      ctx.drawImage(img, 0, 0)
+      const imageData = ctx.getImageData(0, 0, img.width, img.height)
+      resolve(imageData)
+    }
+  })
+}

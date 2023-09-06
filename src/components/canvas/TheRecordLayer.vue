@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useLayerStore } from '@/stores/layer'
 import { useToolStore } from '@/stores/tool'
-import { onMounted, onUnmounted, toRefs } from 'vue'
+import { nextTick, onMounted, onUnmounted, toRefs, watch } from 'vue'
 
 const { recordLayer } = toRefs(useLayerStore())
 const { tool } = toRefs(useToolStore())
@@ -13,12 +13,25 @@ const onMouseup = (e: MouseEvent) => {
   }
 }
 
+const resetOffset = () => {
+  nextTick(() => {
+    if (!recordLayer.value?.ctx) return
+    const rect = recordLayer.value!.ctx.canvas.getBoundingClientRect()
+    setOffset(rect.left, rect.top)
+  })
+}
+
+const { setOffset } = useLayerStore()
+watch(() => recordLayer.value, resetOffset, { immediate: true })
+
 onMounted(() => {
   window.addEventListener('mouseup', onMouseup)
+  window.addEventListener('resize', resetOffset)
 })
 
 onUnmounted(() => {
   window.removeEventListener('mouseup', onMouseup)
+  window.removeEventListener('resize', resetOffset)
 })
 </script>
 

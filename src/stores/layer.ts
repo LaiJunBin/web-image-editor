@@ -11,6 +11,9 @@ export const useLayerStore = defineStore('layer', () => {
   const { commitHistory, clearHistory } = useHistoryStore()
   const { setBlock } = useBlockStore()
 
+  const offsetX = ref(0)
+  const offsetY = ref(0)
+
   const counter = ref(0)
   const backgroundLayer = ref<BackgroundLayer>() as Ref<BackgroundLayer>
   const recordLayer = ref<RecordLayer>()
@@ -19,6 +22,11 @@ export const useLayerStore = defineStore('layer', () => {
   const sortedLayers = computed(() => {
     return [...layers].sort((a, b) => a.order - b.order)
   })
+
+  const setOffset = (x: number, y: number) => {
+    offsetX.value = x
+    offsetY.value = y
+  }
 
   const initLayers = (imageData: ImageData) => {
     recordLayer.value = new RecordLayer()
@@ -88,6 +96,8 @@ export const useLayerStore = defineStore('layer', () => {
     currentLayer.value = layer
   }
   return {
+    offsetX,
+    offsetY,
     layers,
     sortedLayers,
     currentLayer,
@@ -97,6 +107,7 @@ export const useLayerStore = defineStore('layer', () => {
     initLayersFromColor,
     addLayer,
     destroyLayer,
-    selectedLayer
+    selectedLayer,
+    setOffset
   }
 })

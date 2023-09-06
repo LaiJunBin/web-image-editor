@@ -3,6 +3,10 @@ import { useModalStore } from '@/stores/modal'
 import { useHistoryStore } from '@/stores/history'
 import { useSettingStore } from '@/stores/setting'
 import { useLayerStore } from '@/stores/layer'
+import { base64ToImageData, imageData2Base64 } from '.'
+import { LayerObject } from '@/models/LayerObject'
+import { toRefs } from 'vue'
+import { Layer } from '@/models/Layer'
 
 export function newProject() {
   const { openModal } = useModalStore()
@@ -10,7 +14,61 @@ export function newProject() {
 }
 
 export function openProject() {
-  console.log('open project')
+  const { initSettings } = useSettingStore()
+  const { initLayers } = useLayerStore()
+  const { backgroundLayer, layers } = toRefs(useLayerStore())
+
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'application/json'
+
+  input.onchange = (e) => {
+    const file = (e.target as HTMLInputElement).files![0]
+    if (!file) return
+    const fr = new FileReader()
+    fr.onload = async (e) => {
+      const data = JSON.parse(e.target!.result as string)
+
+      initSettings(data.settings.width, data.settings.height)
+      const backgroundImageData = await base64ToImageData(data.backgroundLayer.background)
+      initLayers(backgroundImageData)
+      backgroundLayer.value.objects = await Promise.all(
+        data.backgroundLayer.objects.map(
+          async (object: any) =>
+            new LayerObject(
+              await base64ToImageData(object.imageData),
+              object.x,
+              object.y,
+              object.width,
+              object.height
+            )
+        )
+      )
+
+      backgroundLayer.value.render()
+
+      data.layers.forEach(async (layer: any) => {
+        const newLayer = new Layer(layer.name, layer.order)
+        newLayer.objects = await Promise.all(
+          layer.objects.map(
+            async (object: any) =>
+              new LayerObject(
+                await base64ToImageData(object.imageData),
+                object.x,
+                object.y,
+                object.width,
+                object.height
+              )
+          )
+        )
+
+        newLayer.render()
+        layers.value.push(newLayer)
+      })
+    }
+    fr.readAsText(file)
+  }
+  input.click()
 }
 
 export function openImage() {
@@ -45,7 +103,42 @@ export function openImage() {
 }
 
 export function saveProject() {
-  console.log('save project')
+  const { layers, backgroundLayer } = useLayerStore()
+  const { settings } = useSettingStore()
+  const data = {
+    settings: {
+      width: settings.width,
+      height: settings.height
+    },
+    backgroundLayer: {
+      background: imageData2Base64(backgroundLayer.backgroundImageData),
+      objects: backgroundLayer.objects.map((object) => ({
+        imageData: imageData2Base64(object.imageData),
+        x: object.x,
+        y: object.y,
+        width: object.width,
+        height: object.height,
+        angle: object.angle
+      }))
+    },
+    layers: layers.slice(2).map((layer) => ({
+      name: layer.name,
+      order: layer.order,
+      objects: layer.objects.map((object) => ({
+        imageData: imageData2Base64(object.imageData),
+        x: object.x,
+        y: object.y,
+        width: object.width,
+        height: object.height,
+        angle: object.angle
+      }))
+    }))
+  }
+
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }))
+  a.download = 'project.json'
+  a.click()
 }
 
 export function saveImage() {
