@@ -53,6 +53,9 @@ onUnmounted(() => {
           top: blockY + 'px',
           left: blockX + 'px'
         }"
+        :class="{
+          hidden: block.angle !== 0
+        }"
         @mousedown="tool.resizing = 1"
       ></div>
       <div
@@ -60,6 +63,9 @@ onUnmounted(() => {
         :style="{
           top: blockY + 'px',
           left: blockX + block.width + 'px'
+        }"
+        :class="{
+          hidden: block.angle !== 0
         }"
         @mousedown="tool.resizing = 2"
       ></div>
@@ -69,6 +75,9 @@ onUnmounted(() => {
           top: blockY + block.height + 'px',
           left: blockX + block.width + 'px'
         }"
+        :class="{
+          hidden: block.angle !== 0
+        }"
         @mousedown="tool.resizing = 3"
       ></div>
       <div
@@ -76,6 +85,9 @@ onUnmounted(() => {
         :style="{
           top: blockY + block.height + 'px',
           left: blockX + 'px'
+        }"
+        :class="{
+          hidden: block.angle !== 0
         }"
         @mousedown="tool.resizing = 4"
       ></div>
@@ -112,6 +124,31 @@ onUnmounted(() => {
         }"
         @mousedown="tool.rotating = true"
       ></div>
+
+      <div
+        class="absolute z-50 cursor-grab"
+        :style="{
+          top: blockY - 10 + 'px',
+          left: blockX - 10 + 'px',
+          width: block.width + 20 + 'px',
+          height: block.height + 20 + 'px'
+        }"
+        :class="{
+          hidden: block.angle === 0
+        }"
+        @mousedown="tool.rotating = true"
+      >
+        <div
+          class="absolute cursor-default"
+          @mousedown.stop=""
+          :style="{
+            top: 10 + 'px',
+            left: 10 + 'px',
+            width: block.width + 'px',
+            height: block.height + 'px'
+          }"
+        ></div>
+      </div>
     </div>
   </div>
 </template>
