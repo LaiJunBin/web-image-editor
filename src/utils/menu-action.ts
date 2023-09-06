@@ -15,7 +15,7 @@ export function newProject() {
 
 export function openProject() {
   const { initSettings } = useSettingStore()
-  const { initLayers } = useLayerStore()
+  const { initLayers, setLayerCounter } = useLayerStore()
   const { backgroundLayer, layers } = toRefs(useLayerStore())
 
   const input = document.createElement('input')
@@ -65,6 +65,8 @@ export function openProject() {
         newLayer.render()
         layers.value.push(newLayer)
       })
+
+      setLayerCounter(data.layerCounter)
     }
     fr.readAsText(file)
   }
@@ -103,9 +105,10 @@ export function openImage() {
 }
 
 export function saveProject() {
-  const { layers, backgroundLayer } = useLayerStore()
+  const { layers, backgroundLayer, getLayerCounter } = useLayerStore()
   const { settings } = useSettingStore()
   const data = {
+    layerCounter: getLayerCounter(),
     settings: {
       width: settings.width,
       height: settings.height

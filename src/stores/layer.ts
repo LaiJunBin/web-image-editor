@@ -23,6 +23,11 @@ export const useLayerStore = defineStore('layer', () => {
     return [...layers].sort((a, b) => a.order - b.order)
   })
 
+  const getLayerCounter = () => counter.value
+  const setLayerCounter = (value: number) => {
+    counter.value = value
+  }
+
   const setOffset = (x: number, y: number) => {
     offsetX.value = x
     offsetY.value = y
@@ -108,6 +113,8 @@ export const useLayerStore = defineStore('layer', () => {
     addLayer,
     destroyLayer,
     selectedLayer,
-    setOffset
+    setOffset,
+    getLayerCounter,
+    setLayerCounter
   }
 })
