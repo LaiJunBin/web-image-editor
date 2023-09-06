@@ -157,28 +157,22 @@ export class CursorTool extends Tool {
     const angle = Math.atan2(offsetY - centerY, offsetX - centerX)
 
     if (this.startAngle === null) {
-      this.startAngle = angle - block.angle
+      this.startAngle = angle - block.object.angle
     }
     const newAngle = angle - this.startAngle
 
-    if (!this.rollbackFn) {
-      const { angle } = block
-      this.rollbackFn = () => {
-        if (block.object.angle) {
-          block.angle = angle
-        } else {
-          block.angle = -newAngle
-          block.object.update()
-        }
-        currentLayer!.render()
-        setBlock(block.object)
-      }
+    this.commitFn = () => {
+      setBlock(block!.object)
+      block!.angle = newAngle
+      currentLayer!.render()
+      setBlock(block!.object)
     }
 
-    this.commitFn = () => {
-      block.angle = newAngle
+    this.rollbackFn = () => {
+      setBlock(block!.object)
+      block!.angle = -newAngle
       currentLayer!.render()
-      setBlock(block.object)
+      setBlock(block!.object)
     }
 
     this.commitFn()
@@ -203,7 +197,30 @@ export class CursorTool extends Tool {
     this.resetStatus()
 
     if (!this.commitFn || !this.rollbackFn) return
+
+    const originalCommitFn = this.commitFn
+    const originalRollbackFn = this.rollbackFn
+
+    this.commitFn = () => {
+      originalCommitFn()
+      const { currentLayer } = useLayerStore()
+      const { block, setBlock } = useBlockStore()
+      block?.object.update()
+      currentLayer!.render()
+      setBlock(block!.object)
+    }
+
+    this.rollbackFn = () => {
+      originalRollbackFn()
+      const { currentLayer } = useLayerStore()
+      const { block, setBlock } = useBlockStore()
+      block?.object.update()
+      currentLayer!.render()
+      setBlock(block!.object)
+    }
+
     const { commitHistory } = useHistoryStore()
+
     commitHistory(this.commitFn, this.rollbackFn)
 
     this.startAngle = null
