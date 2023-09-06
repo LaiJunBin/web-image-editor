@@ -49,7 +49,22 @@ export function saveProject() {
 }
 
 export function saveImage() {
-  console.log('save image')
+  const { sortedLayers } = useLayerStore()
+  const { settings } = useSettingStore()
+
+  const cvs = document.createElement('canvas')
+  cvs.width = settings.width
+  cvs.height = settings.height
+  const ctx = cvs.getContext('2d')!
+
+  sortedLayers.forEach((layer) => {
+    ctx.drawImage(layer.ctx.canvas, 0, 0)
+  })
+
+  const a = document.createElement('a')
+  a.href = cvs.toDataURL()
+  a.download = 'image.png'
+  a.click()
 }
 
 export function undo() {
