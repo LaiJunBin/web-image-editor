@@ -4,6 +4,7 @@ import { TestTool, TestToolComponent } from '@/tests/tool'
 import { useToolStore } from '@/stores/tool'
 import { useLayerStore } from '@/stores/layer'
 import { toRefs } from 'vue'
+import { useSettingStore } from '@/stores/setting'
 
 describe('TheRecordLayer', () => {
   test('should dispatch mouse related events using tool', () => {
@@ -35,12 +36,14 @@ describe('TheRecordLayer', () => {
 
   test('when mouseup event is triggered, should call recordLayer commit', () => {
     shallowMount(TheRecordLayerVue)
-    const { recordLayer, initLayers } = toRefs(useLayerStore())
+    const { recordLayer, initLayersFromColor } = toRefs(useLayerStore())
     const testTool = new TestTool(TestToolComponent)
     const { setTool } = useToolStore()
+    const { initSettings } = useSettingStore()
+    initSettings(100, 100)
     setTool(testTool)
 
-    initLayers.value('#333')
+    initLayersFromColor.value('#333')
     vi.spyOn(recordLayer.value!, 'commit')
     window.dispatchEvent(new MouseEvent('mouseup'))
 
