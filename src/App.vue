@@ -8,6 +8,7 @@ import TheControls from './components/TheControls.vue'
 import { toRaw, toRefs } from 'vue'
 import TheCanvas from './components/TheCanvas.vue'
 import { useToolStore } from './stores/tool'
+import { MenuAction } from './const/menu-action'
 import { useSettingStore } from './stores/setting'
 import { useLayerStore } from './stores/layer'
 import { useModalStore } from './stores/modal'
@@ -23,6 +24,23 @@ initSettings(640, 480)
 initLayers('#fff')
 
 setTool.value(DEFAULT_TOOL)
+
+const onKeydown = (e: KeyboardEvent) => {
+  if (e.ctrlKey) {
+    switch (true) {
+      case e.key.toLowerCase() === 'z':
+        e.preventDefault()
+        menuAction.dispatch(MenuAction.UNDO)
+        break
+      case e.key.toLowerCase() === 'y':
+        e.preventDefault()
+        menuAction.dispatch(MenuAction.REDO)
+        break
+    }
+  }
+}
+
+window.addEventListener('keydown', onKeydown)
 </script>
 
 <template>
