@@ -38,7 +38,7 @@ describe('TheCanvas', () => {
     expect(currentLayer.value?.objects.length).toBe(0)
     recordLayer.value!.commit()
     expect(currentLayer.value?.objects.length).toBe(1)
-    expect(currentLayer.value?.objects[0]).toStrictEqual(imageData)
+    expect(currentLayer.value?.objects[0].imageData).toStrictEqual(imageData)
     expect(
       recordLayer.value!.ctx.getImageData(0, 0, 100, 100).data.every((value) => value === 0)
     ).toBe(true)

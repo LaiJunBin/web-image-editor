@@ -36,6 +36,9 @@ describe('TheRecordLayer', () => {
   test('when mouseup event is triggered, should call recordLayer commit', () => {
     shallowMount(TheRecordLayerVue)
     const { recordLayer, initLayers } = toRefs(useLayerStore())
+    const testTool = new TestTool(TestToolComponent)
+    const { setTool } = useToolStore()
+    setTool(testTool)
 
     initLayers.value('#333')
     vi.spyOn(recordLayer.value!, 'commit')
