@@ -43,10 +43,6 @@ const openFile = () => {
 </script>
 
 <template>
-  <h1 class="flex items-center">
-    <span class="text-2xl font-bold">樣章功能</span>
-  </h1>
-  <hr class="my-2" />
   <span class="text-xl font-bold">圖樣大小</span>
   <div class="flex items-center">
     <input
