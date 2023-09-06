@@ -1,7 +1,7 @@
 import {
   newProject,
   openProject,
-  uploadImage,
+  openImage,
   saveProject,
   saveImage,
   undo,
@@ -15,7 +15,7 @@ const mappedMenuAction: {
 } = {
   [MenuActionConst.NEW_PROJECT]: newProject,
   [MenuActionConst.OPEN_PROJECT]: openProject,
-  [MenuActionConst.UPLOAD_IMAGE]: uploadImage,
+  [MenuActionConst.OPEN_IMAGE]: openImage,
   [MenuActionConst.SAVE_PROJECT]: saveProject,
   [MenuActionConst.SAVE_IMAGE]: saveImage,
   [MenuActionConst.UNDO]: undo,
@@ -25,7 +25,7 @@ const mappedMenuAction: {
 vi.mock('@/utils/menu-action', () => ({
   newProject: vi.fn(),
   openProject: vi.fn(),
-  uploadImage: vi.fn(),
+  openImage: vi.fn(),
   saveProject: vi.fn(),
   saveImage: vi.fn(),
   undo: vi.fn(),

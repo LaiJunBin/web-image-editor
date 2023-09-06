@@ -5,7 +5,7 @@ import {
   saveImage,
   saveProject,
   undo,
-  uploadImage
+  openImage
 } from '@/utils/menu-action'
 import { MenuAction as MenuActionConst } from '../const/menu-action'
 
@@ -28,7 +28,7 @@ export const createMenuAction = () => {
   const menuAction = new MenuAction()
   menuAction.register(MenuActionConst.NEW_PROJECT, newProject)
   menuAction.register(MenuActionConst.OPEN_PROJECT, openProject)
-  menuAction.register(MenuActionConst.UPLOAD_IMAGE, uploadImage)
+  menuAction.register(MenuActionConst.OPEN_IMAGE, openImage)
   menuAction.register(MenuActionConst.SAVE_PROJECT, saveProject)
   menuAction.register(MenuActionConst.SAVE_IMAGE, saveImage)
   menuAction.register(MenuActionConst.UNDO, undo)

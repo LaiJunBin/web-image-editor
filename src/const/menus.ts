@@ -28,8 +28,8 @@ export const menus: MenuType<MenuAction>[] = [
         action: MenuAction.SAVE_PROJECT
       },
       {
-        text: '上傳圖片',
-        action: MenuAction.UPLOAD_IMAGE
+        text: '開啟圖片',
+        action: MenuAction.OPEN_IMAGE
       },
       {
         text: '儲存圖片',

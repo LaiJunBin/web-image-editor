@@ -11,8 +11,8 @@ export function openProject() {
   console.log('open project')
 }
 
-export function uploadImage() {
-  console.log('upload image')
+export function openImage() {
+  console.log('open image')
 }
 
 export function saveProject() {
