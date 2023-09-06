@@ -1,52 +1,46 @@
 # web-image-editor
 
-This template should help get you started developing with Vue 3 in Vite.
+This is a web image editor, which is implemented by Vue3. [Demo](https://laijunbin.github.io/web-image-editor/)
 
-## Recommended IDE Setup
+English ｜[繁體中文](https://github.com/LaiJunBin/web-image-editor/blob/main/README-zh-tw.md#web-image-editor)
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+---
 
-## Type Support for `.vue` Imports in TS
+## Snapshot
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+![snapshot](./docs/images/snapshot.png)
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+---
 
-1. Disable the built-in TypeScript Extension
-   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+## Feature
 
-## Customize configuration
+- [x] Navbar
+  - [x] New project: Create new project
+  - [x] Open project: Open project from local
+  - [x] Save project: Save project to local
+  - [x] Open image: Open image from local
+  - [x] Save image: Save image to local
+  - [x] Undo(ctrl+z) and redo(ctrl+y): Undo and redo action
+- [x] Tools
+  - [x] Brush tool: Draw on canvas
+    - [x] Brush size: Change brush size
+    - [x] Brush color: Change brush color
+  - [x] Paint bucket: Fill color on canvas
+    - [x] Paint bucket color: Change paint bucket color
+  - [x] Seal: Stamp on canvas
+    - [x] Seal size: Change seal size
+    - [x] Seal image: Upload seal image and select it
+  - [x] Selection tool: Select area on canvas, then you can ctrl+j to copy and paste it to new layer
+  - [x] Cursor tool: Select object on canvas, then you can move, resize and rotate it
+- [x] Layer
+  - [x] Add layer: Add new layer
+  - [x] Delete layer: Delete layer
+  - [x] Order layer: Change layer order by drag and drop
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+---
 
-## Project Setup
+## Note
 
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+- If you drag object to outside of canvas, it will be cut off. You can use undo(ctrl+z) to recover it.
+- Erase tool is not implemented, but you can use brush tool with the background color to erase objects.
+- Operations may cause image distortion.
