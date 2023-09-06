@@ -8,7 +8,7 @@ import { useLayerStore } from '@/stores/layer'
 
 const { closeModal } = useModalStore()
 const { initSettings } = useSettingStore()
-const { initLayers } = useLayerStore()
+const { initLayersFromColor } = useLayerStore()
 
 const createProjectSchema = z.object({
   width: z.number().int().min(1).max(1024),
@@ -34,7 +34,7 @@ const createProject = () => {
   }
 
   initSettings(payload.width, payload.height)
-  initLayers(payload.backgroundColor)
+  initLayersFromColor(payload.backgroundColor)
   closeModal()
 }
 </script>

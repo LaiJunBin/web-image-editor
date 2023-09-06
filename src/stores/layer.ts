@@ -5,6 +5,7 @@ import { defineStore } from 'pinia'
 import { computed, reactive, ref, type Ref } from 'vue'
 import { useHistoryStore } from './history'
 import { useBlockStore } from './block'
+import { useSettingStore } from './setting'
 
 export const useLayerStore = defineStore('layer', () => {
   const { commitHistory, clearHistory } = useHistoryStore()
@@ -19,13 +20,25 @@ export const useLayerStore = defineStore('layer', () => {
     return [...layers].sort((a, b) => a.order - b.order)
   })
 
-  const initLayers = (color: string) => {
+  const initLayers = (imageData: ImageData) => {
     recordLayer.value = new RecordLayer()
-    backgroundLayer.value = new BackgroundLayer(color)
+    backgroundLayer.value = new BackgroundLayer(imageData)
     layers.length = 0
     layers.push(recordLayer.value, backgroundLayer.value)
     selectedLayer(backgroundLayer.value)
     clearHistory()
+  }
+
+  const initLayersFromColor = (color: string) => {
+    const { settings } = useSettingStore()
+    const canvas = document.createElement('canvas')
+    canvas.width = settings.width
+    canvas.height = settings.height
+    const ctx = canvas.getContext('2d')!
+    ctx.fillStyle = color
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+    initLayers(imageData)
   }
 
   const addLayer = (imageData?: ImageData) => {
@@ -81,6 +94,7 @@ export const useLayerStore = defineStore('layer', () => {
     backgroundLayer,
     recordLayer,
     initLayers,
+    initLayersFromColor,
     addLayer,
     destroyLayer,
     selectedLayer

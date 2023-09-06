@@ -17,11 +17,11 @@ const menuAction = createMenuAction()
 
 const { tool, setTool } = toRefs(useToolStore())
 const { initSettings } = useSettingStore()
-const { initLayers } = useLayerStore()
+const { initLayersFromColor } = useLayerStore()
 const { modal } = toRefs(useModalStore())
 
 initSettings(640, 480)
-initLayers('#fff')
+initLayersFromColor('#fff')
 
 setTool.value(DEFAULT_TOOL)
 
