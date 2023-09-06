@@ -22,14 +22,17 @@ class SelectionTool extends Tool {
     this.height = 0
   }
 
-  mouseover(e: MouseEvent) {}
-
-  mousedown(e: MouseEvent) {
+  clear() {
     const { recordLayer } = useLayerStore()
     if (!recordLayer) return
     const { ctx } = recordLayer
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+  }
 
+  mouseover(e: MouseEvent) {}
+
+  mousedown(e: MouseEvent) {
+    this.clear()
     this.drawing = true
     this.startX = e.offsetX
     this.startY = e.offsetY
