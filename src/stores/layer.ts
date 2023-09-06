@@ -27,13 +27,15 @@ export const useLayerStore = defineStore('layer', () => {
     selectedLayer(backgroundLayer.value)
   }
 
-  const addLayer = () => {
-    const layer = new Layer(`圖層 ${++counter.value}`, layers.length)
+  const addLayer = (imageData?: ImageData) => {
+    const layer = new Layer(`圖層 ${++counter.value}`, layers.length, imageData)
 
+    const originalCounter = counter.value
     commitHistory(
       () => {
         layers.push(layer)
         selectedLayer(layer)
+        counter.value = originalCounter
       },
       () => {
         const index = layers.indexOf(layer)
@@ -47,6 +49,8 @@ export const useLayerStore = defineStore('layer', () => {
   }
 
   const destroyLayer = (layer: Layer) => {
+    const isCurrentLayer = layer === currentLayer.value
+
     commitHistory(
       () => {
         const index = layers.indexOf(layer)
@@ -54,6 +58,9 @@ export const useLayerStore = defineStore('layer', () => {
           layers.splice(index, 1)
         }
         currentLayer.value = layers[layers.length - 1]
+        if (isCurrentLayer) {
+          setBlock(null)
+        }
       },
       () => {
         layers.push(layer)

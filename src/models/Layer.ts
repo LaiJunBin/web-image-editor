@@ -1,6 +1,7 @@
 import { markRaw, type Component } from 'vue'
 import TheLayer from '@/components/canvas/TheLayer.vue'
-import type { LayerObject } from './LayerObject'
+import { LayerObject } from './LayerObject'
+import { getLayerObjectBoundingRect } from '@/utils'
 
 export class Layer {
   private _ref: HTMLCanvasElement | null
@@ -16,7 +17,9 @@ export class Layer {
   public reorderable: boolean
   public deleteable: boolean
 
-  constructor(name: string, order: number) {
+  private initImageData: ImageData | null = null
+
+  constructor(name: string, order: number, initImageData: ImageData | null = null) {
     this.name = name
     this.order = order
     this.component = markRaw(TheLayer)
@@ -29,6 +32,8 @@ export class Layer {
     this.visible = true
     this.reorderable = true
     this.deleteable = true
+
+    this.initImageData = initImageData
   }
 
   get ref(): HTMLCanvasElement | null {
@@ -39,6 +44,12 @@ export class Layer {
     this._ref = ref
     if (this._ref) {
       this.ctx = this._ref.getContext('2d', { willReadFrequently: true })!
+      if (this.initImageData) {
+        if (this.objects.length > 0) return
+        const { top, left, width, height } = getLayerObjectBoundingRect(this.initImageData)
+        const object = new LayerObject(this.initImageData, left, top, width, height)
+        this.objects.push(object)
+      }
     }
   }
 
@@ -57,6 +68,7 @@ export class Layer {
         }
       }
     }
+
     ctx.drawImage(
       this.ctx.canvas,
       0,
