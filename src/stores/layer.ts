@@ -7,7 +7,7 @@ import { useHistoryStore } from './history'
 import { useBlockStore } from './block'
 
 export const useLayerStore = defineStore('layer', () => {
-  const { commitHistory } = useHistoryStore()
+  const { commitHistory, clearHistory } = useHistoryStore()
   const { setBlock } = useBlockStore()
 
   const counter = ref(0)
@@ -25,6 +25,7 @@ export const useLayerStore = defineStore('layer', () => {
     layers.length = 0
     layers.push(recordLayer.value, backgroundLayer.value)
     selectedLayer(backgroundLayer.value)
+    clearHistory()
   }
 
   const addLayer = (imageData?: ImageData) => {
