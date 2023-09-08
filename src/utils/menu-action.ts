@@ -114,7 +114,7 @@ export function saveProject() {
       height: settings.height
     },
     backgroundLayer: {
-      background: imageData2Base64(backgroundLayer.backgroundImageData),
+      background: backgroundLayer.backgroundCanvas.toDataURL(),
       objects: backgroundLayer.objects.map((object) => ({
         imageData: imageData2Base64(object.imageData),
         x: object.x,
@@ -154,7 +154,8 @@ export function saveImage() {
   const ctx = cvs.getContext('2d')!
 
   sortedLayers.forEach((layer) => {
-    ctx.drawImage(layer.ctx.canvas, 0, 0)
+    const { canvas } = layer.getRenderedObjectCanvas()
+    ctx.drawImage(canvas, 0, 0)
   })
 
   const a = document.createElement('a')

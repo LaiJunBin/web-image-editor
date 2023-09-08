@@ -5,6 +5,7 @@ import { BackgroundLayer } from '@/models/layers/BackgroundLayer'
 import { RecordLayer } from '@/models/layers/RecordLayer'
 import { useHistoryStore } from '../history'
 import { useSettingStore } from '../setting'
+import type { fn } from '@/test-utils'
 
 const mockCommitHistory = vi.fn()
 vi.mock('@/stores/history', async () => {
@@ -44,18 +45,26 @@ describe('layer store', () => {
 
     it('should set correct background color', () => {
       const { initLayersFromColor, backgroundLayer } = toRefs(useLayerStore())
+
+      const tmpImageData = new ImageData(2, 2)
+      tmpImageData.data.set([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255, 255, 255, 255, 255])
+
       const cvs = document.createElement('canvas')
       const ctx = cvs.getContext('2d')!
       const getContext = vi.fn(() => ({
         ...ctx,
-        getImageData: vi.fn(() => ({ data: [1, 2, 3, 4] }))
+        getImageData: vi.fn(() => tmpImageData)
       }))
-      vi.spyOn(document, 'createElement').mockReturnValue({ getContext } as any)
+      vi.spyOn(document, 'createElement').mockReturnValueOnce({ getContext } as any)
 
       const color1 = '#333333'
       initLayersFromColor.value(color1)
+      const backgroundCtx = backgroundLayer.value.backgroundCanvas.getContext('2d')!
+      const putImageData = backgroundCtx.putImageData as fn
+
       expect(getContext.mock.results[0].value.fillStyle).toBe(color1)
-      expect(backgroundLayer.value.backgroundImageData.data).toStrictEqual([1, 2, 3, 4])
+      expect(putImageData.mock.calls).toHaveLength(1)
+      expect(putImageData.mock.calls[0][0]).toBe(tmpImageData)
     })
 
     it('should select background layer', () => {

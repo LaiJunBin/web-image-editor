@@ -8,18 +8,20 @@ import { useLayerStore } from '@/stores/layer'
 
 const { closeModal } = useModalStore()
 const { initSettings } = useSettingStore()
-const { initLayersFromColor } = useLayerStore()
+const { initLayers, initLayersFromColor } = useLayerStore()
 
 const createProjectSchema = z.object({
   width: z.number().int().min(1).max(1024),
   height: z.number().int().min(1).max(768),
-  backgroundColor: z.string().regex(/^#[0-9a-f]{6}$/i)
+  backgroundColor: z.string().regex(/^#[0-9a-f]{6}$/i),
+  bgTransparent: z.boolean()
 })
 
 const payload = reactive<z.infer<typeof createProjectSchema>>({
   width: 640,
   height: 480,
-  backgroundColor: '#ffffff'
+  backgroundColor: '#ffffff',
+  bgTransparent: false
 })
 
 const createProject = () => {
@@ -34,7 +36,12 @@ const createProject = () => {
   }
 
   initSettings(payload.width, payload.height)
-  initLayersFromColor(payload.backgroundColor)
+
+  if (payload.bgTransparent) {
+    initLayers()
+  } else {
+    initLayersFromColor(payload.backgroundColor)
+  }
   closeModal()
 }
 </script>
@@ -92,7 +99,16 @@ const createProject = () => {
             </label>
             <label class="inline-flex items-center gap-x-2">
               背景顏色
-              <input type="color" v-model="payload.backgroundColor" class="rounded-lg" />
+              <input
+                type="color"
+                v-model="payload.backgroundColor"
+                class="rounded-lg disabled:cursor-no-drop disabled:opacity-50"
+                :disabled="payload.bgTransparent"
+              />
+            </label>
+            <label class="mx-2 inline-flex items-center gap-x-2">
+              <input type="checkbox" v-model="payload.bgTransparent" class="rounded-lg" />
+              透明
             </label>
           </div>
           <div

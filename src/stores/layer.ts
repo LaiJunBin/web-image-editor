@@ -33,7 +33,7 @@ export const useLayerStore = defineStore('layer', () => {
     offsetY.value = y
   }
 
-  const initLayers = (imageData: ImageData) => {
+  const initLayers = (imageData?: ImageData) => {
     recordLayer.value = new RecordLayer()
     backgroundLayer.value = new BackgroundLayer(imageData)
     layers.length = 0

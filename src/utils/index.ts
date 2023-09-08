@@ -66,3 +66,21 @@ export function cloneCanvas(canvas: HTMLCanvasElement) {
   ctx.drawImage(canvas, 0, 0)
   return newCanvas
 }
+
+export function getTransparentCanvas(width: number, height: number) {
+  const canvas = document.createElement('canvas')
+  canvas.width = width
+  canvas.height = height
+  const ctx = canvas.getContext('2d')!
+  ctx.fillStyle = 'rgba(255, 255, 255, 255)'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.fillStyle = 'rgba(128, 128, 128, 255)'
+  for (let i = 0; i < canvas.width; i += 5) {
+    for (let j = 0; j < canvas.height; j += 5) {
+      if ((i + j) % 10 === 0) {
+        ctx.fillRect(i, j, 5, 5)
+      }
+    }
+  }
+  return { canvas, ctx }
+}

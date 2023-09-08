@@ -1,7 +1,7 @@
 import { markRaw, type Component } from 'vue'
 import TheLayer from '@/components/canvas/TheLayer.vue'
 import { LayerObject } from './LayerObject'
-import { getLayerObjectBoundingRect } from '@/utils'
+import { getLayerObjectBoundingRect, getTransparentCanvas } from '@/utils'
 
 export class Layer {
   private _ref: HTMLCanvasElement | null
@@ -53,34 +53,21 @@ export class Layer {
     }
   }
 
-  private updatePreviewUrl() {
-    const canvas = document.createElement('canvas')
-    canvas.width = 40
-    canvas.height = 40
-    const ctx = canvas.getContext('2d')!
-    ctx.fillStyle = 'rgba(255, 255, 255, 255)'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = 'rgba(128, 128, 128, 255)'
-    for (let i = 0; i < canvas.width; i += 5) {
-      for (let j = 0; j < canvas.height; j += 5) {
-        if ((i + j) % 10 === 0) {
-          ctx.fillRect(i, j, 5, 5)
-        }
-      }
-    }
-
-    ctx.drawImage(
-      this.ctx.canvas,
+  updatePreviewUrl() {
+    const { canvas: objectCanvas } = this.getRenderedObjectCanvas()
+    const { canvas: previewCanvas, ctx: previewCtx } = getTransparentCanvas(40, 40)
+    previewCtx.drawImage(
+      objectCanvas,
       0,
       0,
-      this.ctx.canvas.width,
-      this.ctx.canvas.height,
+      objectCanvas.width,
+      objectCanvas.height,
       0,
       0,
-      canvas.width,
-      canvas.height
+      previewCanvas.width,
+      previewCanvas.height
     )
-    this.previewUrl = canvas.toDataURL()
+    this.previewUrl = previewCanvas.toDataURL()
   }
 
   init() {
@@ -100,21 +87,37 @@ export class Layer {
     this.updatePreviewUrl()
   }
 
-  render() {
-    if (!this.ctx) return
-    this.init()
+  getCanvas() {
+    const canvas = document.createElement('canvas')
+    canvas.width = this.ctx.canvas.width
+    canvas.height = this.ctx.canvas.height
+    const ctx = canvas.getContext('2d')!
+    return { canvas, ctx }
+  }
+
+  getRenderedObjectCanvas() {
+    const { canvas, ctx } = this.getCanvas()
 
     this.objects.forEach((object) => {
       const { canvas, x, y, width, height, angle, invalid } = object
       if (invalid) return
-      this.ctx.save()
-      this.ctx.translate(x + width / 2, y + height / 2)
-      this.ctx.rotate(angle)
-      this.ctx.translate(-(x + width / 2), -(y + height / 2))
-      this.ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, x, y, width, height)
-      this.ctx.restore()
+      ctx.save()
+      ctx.translate(x + width / 2, y + height / 2)
+      ctx.rotate(angle)
+      ctx.translate(-(x + width / 2), -(y + height / 2))
+      ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, x, y, width, height)
+      ctx.restore()
     })
 
+    return { canvas, ctx }
+  }
+
+  render() {
+    if (!this.ctx) return
+    const { canvas } = this.getRenderedObjectCanvas()
+
+    this.init()
+    this.ctx.drawImage(canvas, 0, 0)
     this.save()
   }
 }
