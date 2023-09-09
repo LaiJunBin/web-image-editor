@@ -4,6 +4,7 @@ import type { Component } from 'vue'
 import type { Control } from '../Control'
 import { useLayerStore } from '@/stores/layer'
 import SelectionControl from '../controls/SelectionControl'
+import { useSettingStore } from '@/stores/setting'
 
 class SelectionTool extends Tool {
   drawing: boolean
@@ -40,14 +41,17 @@ class SelectionTool extends Tool {
 
   mousemove(e: MouseEvent) {
     const { recordLayer } = useLayerStore()
-    if (!recordLayer || !this.drawing) return
-    const { ctx } = recordLayer
+    const { settings } = useSettingStore()
 
+    if (!recordLayer || !this.drawing) return
+    const scale = settings.scale / 100
+
+    const { ctx } = recordLayer
     const { left, top } = recordLayer!.ctx.canvas.getBoundingClientRect()
 
     const { clientX, clientY } = e
-    const offsetX = clientX - left
-    const offsetY = clientY - top
+    const offsetX = (clientX - left) / scale
+    const offsetY = (clientY - top) / scale
 
     this.width = Math.max(
       Math.min(offsetX - this.startX, ctx.canvas.width - this.startX),
