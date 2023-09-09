@@ -8,10 +8,18 @@ import { LayerObject } from '../LayerObject'
 import { useBlockStore } from '@/stores/block'
 
 export class RecordLayer extends Layer {
+  boundingRect: DOMRect
+
   constructor() {
     super('紀錄', Number.MAX_SAFE_INTEGER)
     this.component = markRaw(TheRecordLayer)
     this.visible = false
+    this.boundingRect = new DOMRect(0, 0, 0, 0)
+  }
+
+  updateBoundingRect() {
+    const { canvas } = this.ctx
+    this.boundingRect = canvas.getBoundingClientRect()
   }
 
   commit() {

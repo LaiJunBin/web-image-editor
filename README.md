@@ -36,6 +36,9 @@ English ｜[繁體中文](https://github.com/LaiJunBin/web-image-editor/blob/mai
   - [x] Add layer: Add new layer
   - [x] Delete layer: Delete layer
   - [x] Order layer: Change layer order by drag and drop
+- [x] Other
+  - [x] Zoom: Hold alt and scroll mouse wheel to zoom canvas
+  - [x] Drag: Hold space and left click to drag canvas
 
 ---
 

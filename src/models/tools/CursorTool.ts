@@ -8,6 +8,7 @@ import CursorControl from '../controls/CursorControl'
 import { LayerObject } from '../LayerObject'
 import { useHistoryStore } from '@/stores/history'
 import { cloneCanvas } from '@/utils'
+import { useSettingStore } from '@/stores/setting'
 
 export class CursorTool extends Tool {
   resizing: number
@@ -69,6 +70,7 @@ export class CursorTool extends Tool {
   private move(e: MouseEvent) {
     const { block, setBlock } = useBlockStore()
     const { currentLayer } = useLayerStore()
+    const { settings } = useSettingStore()
     const { movementX, movementY } = e
     if (!block) return
 
@@ -85,9 +87,11 @@ export class CursorTool extends Tool {
     }
 
     const { x, y } = block
+    const scale = settings.scale / 100
+
     this.commitFn = () => {
-      block.x = x + movementX
-      block.y = y + movementY
+      block.x = x + movementX / scale
+      block.y = y + movementY / scale
       currentLayer!.render()
       setBlock(block.object)
     }
@@ -99,8 +103,10 @@ export class CursorTool extends Tool {
     const { block, setBlock } = useBlockStore()
     const { currentLayer } = useLayerStore()
     const { movementX, movementY } = e
+    const { settings } = useSettingStore()
     if (!block) return
 
+    const scale = settings.scale / 100
     const values = [
       [1, 1, 1, 1, 0, 0],
       [0, 1, -1, 1, -1, 0],
@@ -108,10 +114,10 @@ export class CursorTool extends Tool {
       [1, 0, 1, -1, 0, -1]
     ][this.resizing - 1]
 
-    const newWidth = block.width - movementX * values[2]
-    const newHeight = block.height - movementY * values[3]
-    const newX = block.x + movementX * values[0]
-    const newY = block.y + movementY * values[1]
+    const newWidth = block.width - (movementX / scale) * values[2]
+    const newHeight = block.height - (movementY / scale) * values[3]
+    const newX = block.x + (movementX / scale) * values[0]
+    const newY = block.y + (movementY / scale) * values[1]
 
     if (
       (block.width > newWidth && newWidth <= 10) ||
@@ -146,18 +152,19 @@ export class CursorTool extends Tool {
   private rotate(e: MouseEvent) {
     const { currentLayer, recordLayer } = useLayerStore()
     const { block, setBlock, tempBlock, setTempBlock } = useBlockStore()
+    const { settings } = useSettingStore()
     if (!block) return
 
-    const { left, top } = recordLayer!.ctx.canvas.getBoundingClientRect()
+    const scale = settings.scale / 100
+    const { left, top } = recordLayer!.boundingRect
 
     const { clientX, clientY } = e
-    const offsetX = clientX - left
-    const offsetY = clientY - top
 
     const { x, y, width, height } = block
-    const centerX = x + width / 2
-    const centerY = y + height / 2
-    const angle = Math.atan2(offsetY - centerY, offsetX - centerX)
+    const centerX = left + x * scale + (width * scale) / 2
+    const centerY = top + y * scale + (height * scale) / 2
+
+    const angle = Math.atan2(clientY - centerY, clientX - centerX)
 
     if (this.startAngle === null) {
       setTempBlock(block.object)

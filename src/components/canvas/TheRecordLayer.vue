@@ -13,25 +13,24 @@ const onMouseup = (e: MouseEvent) => {
   }
 }
 
-const resetOffset = () => {
+const updateBoundingRect = () => {
   nextTick(() => {
     if (!recordLayer.value?.ctx) return
-    const rect = recordLayer.value!.ctx.canvas.getBoundingClientRect()
-    setOffset(rect.left, rect.top)
+
+    recordLayer.value.updateBoundingRect()
   })
 }
 
-const { setOffset } = useLayerStore()
-watch(() => recordLayer.value, resetOffset, { immediate: true })
+watch(() => recordLayer.value, updateBoundingRect, { immediate: true })
 
 onMounted(() => {
   window.addEventListener('mouseup', onMouseup)
-  window.addEventListener('resize', resetOffset)
+  window.addEventListener('resize', updateBoundingRect)
 })
 
 onUnmounted(() => {
   window.removeEventListener('mouseup', onMouseup)
-  window.removeEventListener('resize', resetOffset)
+  window.removeEventListener('resize', updateBoundingRect)
 })
 </script>
 

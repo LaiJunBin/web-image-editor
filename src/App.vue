@@ -12,6 +12,7 @@ import { MenuAction } from './const/menu-action'
 import { useSettingStore } from './stores/setting'
 import { useLayerStore } from './stores/layer'
 import { useModalStore } from './stores/modal'
+import TheFooter from './components/TheFooter.vue'
 
 const menuAction = createMenuAction()
 
@@ -53,6 +54,7 @@ window.addEventListener('keydown', onKeydown)
     <TheTools :tools="tools" style="grid-area: TheTools" />
     <TheCanvas style="grid-area: TheCanvas" />
     <TheControls :tool="tool" style="grid-area: TheControls" />
+    <TheFooter style="grid-area: TheFooter" />
   </section>
 
   <component :is="toRaw(modal)" v-if="modal" />
@@ -61,9 +63,9 @@ window.addEventListener('keydown', onKeydown)
 <style scoped>
 section {
   display: grid;
-  grid-template: 'TheNavbar TheNavbar TheNavbar' 'TheTools TheCanvas TheControls';
+  grid-template: 'TheNavbar TheNavbar TheNavbar' 'TheTools TheCanvas TheControls' 'TheFooter TheFooter TheFooter';
   grid-template-columns: 2.5rem 3fr 1fr;
-  grid-template-rows: max-content 1fr;
+  grid-template-rows: max-content 1fr max-content;
   align-items: flex-start;
 }
 </style>

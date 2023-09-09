@@ -9,7 +9,7 @@ describe('setting store', () => {
     initSettings(width, height)
     expect(settings.width).toBe(width)
     expect(settings.height).toBe(height)
-    expect(settings.scale).toBe(1)
+    expect(settings.scale).toBe(100)
   })
 
   test('color is reactive', () => {
