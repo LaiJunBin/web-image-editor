@@ -93,7 +93,7 @@ class SelectionTool extends Tool {
     const width = Math.abs(this.width)
     const height = Math.abs(this.height)
 
-    const imageData = currentLayer.ctx.getImageData(x, y, width, height)
+    const imageData = currentLayer.getRenderedObjectCanvas().ctx.getImageData(x, y, width, height)
     if (imageData.data.every((v) => v === 0)) return
 
     const canvas = document.createElement('canvas')
