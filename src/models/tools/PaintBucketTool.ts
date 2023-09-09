@@ -17,7 +17,9 @@ class PaintBucketTool extends Tool {
     const { color } = useSettingStore()
     const { currentLayer, recordLayer } = useLayerStore()
     const imageData = recordLayer?.imageData
-    const baseImageData = currentLayer?.imageData
+    const baseImageData = currentLayer
+      ?.getRenderedObjectCanvas()
+      .ctx.getImageData(0, 0, currentLayer.ctx.canvas.width, currentLayer.ctx.canvas.height)
     if (!imageData || !baseImageData) return
 
     const { offsetX, offsetY } = e
