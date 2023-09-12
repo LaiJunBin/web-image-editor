@@ -40,7 +40,9 @@ export function openProject() {
               object.x,
               object.y,
               object.width,
-              object.height
+              object.height,
+              object.offsetX,
+              object.offsetY
             )
         )
       )
@@ -57,7 +59,9 @@ export function openProject() {
                 object.x,
                 object.y,
                 object.width,
-                object.height
+                object.height,
+                object.offsetX,
+                object.offsetY
               )
           )
         )
@@ -121,7 +125,9 @@ export function saveProject() {
         y: object.y,
         width: object.width,
         height: object.height,
-        angle: object.angle
+        angle: object.angle,
+        offsetX: object.offsetX,
+        offsetY: object.offsetY
       }))
     },
     layers: layers.slice(2).map((layer) => ({
@@ -133,7 +139,9 @@ export function saveProject() {
         y: object.y,
         width: object.width,
         height: object.height,
-        angle: object.angle
+        angle: object.angle,
+        offsetX: object.offsetX,
+        offsetY: object.offsetY
       }))
     }))
   }

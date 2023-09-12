@@ -63,7 +63,7 @@ export class CursorTool extends Tool {
       return
     }
 
-    setBlock(object as LayerObject)
+    setBlock(object)
     this.moving = true
   }
 
@@ -217,6 +217,18 @@ export class CursorTool extends Tool {
     const originalRollbackFn = this.rollbackFn
 
     const beforeCtx = ref<CanvasRenderingContext2D | null>(null)
+    const deletedLayerObject = ref<LayerObject | null>(null)
+    const { currentLayer } = useLayerStore()
+    const { block } = useBlockStore()
+    const { x, y, width, height, imageData } = block!.object
+    const { width: maxWidth, height: maxHeight } = imageData
+    if (x <= -width || y <= -height || x >= maxWidth || y >= maxHeight) {
+      deletedLayerObject.value = block!.object
+    }
+    const deletedLayerObjectIndex = currentLayer!.objects.findIndex(
+      (object) => object === deletedLayerObject.value
+    )
+
     this.commitFn = () => {
       originalCommitFn()
       const { currentLayer } = useLayerStore()
@@ -226,19 +238,26 @@ export class CursorTool extends Tool {
       beforeCtx.value = ctx
 
       block.value?.object.update()
-      currentLayer!.render()
 
-      if (block.value?.object.invalid) {
+      if (deletedLayerObject.value) {
+        currentLayer!.objects.splice(deletedLayerObjectIndex, 1)
         setBlock.value(null)
       } else {
         setBlock.value(block.value!.object)
       }
+
+      currentLayer!.render()
     }
 
     this.rollbackFn = () => {
       originalRollbackFn()
       const { currentLayer } = useLayerStore()
       const { block, setBlock } = useBlockStore()
+
+      if (deletedLayerObject.value) {
+        currentLayer!.objects.splice(deletedLayerObjectIndex, 0, deletedLayerObject.value)
+      }
+
       block?.object.update()
       block!.x = block?.x!
       block!.y = block?.y!
@@ -246,7 +265,6 @@ export class CursorTool extends Tool {
       block!.height = block?.height!
       block!.object.canvas = beforeCtx.value?.canvas!
       block!.object.ctx = beforeCtx.value!
-      block!.object.invalid = false
       currentLayer!.render()
 
       setBlock(block!.object)

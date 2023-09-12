@@ -44,6 +44,6 @@ English ｜[繁體中文](https://github.com/LaiJunBin/web-image-editor/blob/mai
 
 ## Note
 
-- If you drag object to outside of canvas, it will be cut off. You can use undo(ctrl+z) to recover it.
+- If you drag the object out of the canvas, it will be deleted. You can use undo(ctrl+z) to undo it.
 - Erase tool is not implemented, but you can use brush tool with the background color to erase objects.
 - Operations may cause image distortion.
