@@ -4,7 +4,7 @@ import { useSettingStore } from '@/stores/setting'
 import { nextTick, onMounted, onUnmounted, ref, toRaw, toRefs } from 'vue'
 import { Layer } from '@/models/Layer'
 
-const { layers, recordLayer } = toRefs(useLayerStore())
+const { sortedLayers, recordLayer } = toRefs(useLayerStore())
 const { settings } = useSettingStore()
 const createLayerRef = (layer: Layer) => {
   return (e: { $el: HTMLCanvasElement } | null) => {
@@ -84,7 +84,7 @@ onUnmounted(() => {
       }"
     >
       <!-- eslint-disable-next-line vue/no-useless-template-attributes -->
-      <template v-for="layer in layers" :key="layer.name" v-memo="[layer]">
+      <template v-for="layer in sortedLayers" :key="layer.name" v-memo="[layer]">
         <component
           :is="layer.component"
           class="absolute -translate-x-1/2 -translate-y-1/2"
