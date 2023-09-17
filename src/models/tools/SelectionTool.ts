@@ -5,6 +5,7 @@ import type { Control } from '../Control'
 import { useLayerStore } from '@/stores/layer'
 import SelectionControl from '../controls/SelectionControl'
 import { useSettingStore } from '@/stores/setting'
+import { useSelectionStore } from '@/stores/selection'
 
 class SelectionTool extends Tool {
   drawing: boolean
@@ -73,6 +74,8 @@ class SelectionTool extends Tool {
 
   mouseup(e: MouseEvent) {
     this.drawing = false
+    const { setSelection } = useSelectionStore()
+    setSelection(this.startX, this.startY, this.width, this.height)
   }
 
   copyToLayer() {
@@ -113,6 +116,15 @@ class SelectionTool extends Tool {
   mouseout(e: MouseEvent) {}
 
   mousePreview(e: MouseEvent) {}
+
+  beforeSwitch() {
+    const { clearSelection } = useSelectionStore()
+    clearSelection()
+    this.startX = 0
+    this.startY = 0
+    this.width = 0
+    this.height = 0
+  }
 }
 
 export default new SelectionTool(TheSelectionTool, [SelectionControl])

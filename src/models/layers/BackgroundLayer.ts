@@ -2,6 +2,9 @@ import { Layer } from '../Layer'
 
 export class BackgroundLayer extends Layer {
   public backgroundCanvas: HTMLCanvasElement = document.createElement('canvas')
+  public backgroundCtx: CanvasRenderingContext2D = this.backgroundCanvas.getContext('2d', {
+    willReadFrequently: true
+  })!
 
   constructor(imageData?: ImageData) {
     super('背景', 0)
@@ -11,7 +14,7 @@ export class BackgroundLayer extends Layer {
     if (imageData) {
       this.backgroundCanvas.width = imageData.width
       this.backgroundCanvas.height = imageData.height
-      this.backgroundCanvas.getContext('2d')!.putImageData(imageData, 0, 0)
+      this.backgroundCtx.putImageData(imageData, 0, 0)
     }
   }
 

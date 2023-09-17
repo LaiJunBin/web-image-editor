@@ -6,5 +6,11 @@ export enum MenuAction {
   SAVE_IMAGE,
 
   UNDO,
-  REDO
+  REDO,
+
+  GRAYSCALE,
+  INVERT,
+  BLUR,
+  OIL_PAINTING,
+  BLACK_AND_WHITE
 }

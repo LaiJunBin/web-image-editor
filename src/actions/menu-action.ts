@@ -5,7 +5,12 @@ import {
   saveImage,
   saveProject,
   undo,
-  openImage
+  openImage,
+  grayscale,
+  invert,
+  blur,
+  oilPainting,
+  blackAndWhite
 } from '@/utils/menu-action'
 import { MenuAction as MenuActionConst } from '../const/menu-action'
 
@@ -33,5 +38,12 @@ export const createMenuAction = () => {
   menuAction.register(MenuActionConst.SAVE_IMAGE, saveImage)
   menuAction.register(MenuActionConst.UNDO, undo)
   menuAction.register(MenuActionConst.REDO, redo)
+
+  menuAction.register(MenuActionConst.GRAYSCALE, grayscale)
+  menuAction.register(MenuActionConst.INVERT, invert)
+  menuAction.register(MenuActionConst.BLUR, blur)
+  menuAction.register(MenuActionConst.OIL_PAINTING, oilPainting)
+  menuAction.register(MenuActionConst.BLACK_AND_WHITE, blackAndWhite)
+
   return menuAction
 }

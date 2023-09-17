@@ -1,6 +1,5 @@
 import { useHistoryStore } from '@/stores/history'
 import { MenuAction } from './menu-action'
-import { toRefs } from 'vue'
 
 export interface MenuType<T> {
   text: string
@@ -49,6 +48,31 @@ export const menus: MenuType<MenuAction>[] = [
         text: '重做',
         action: MenuAction.REDO,
         disabled: () => !useHistoryStore().canRedo
+      }
+    ]
+  },
+  {
+    text: '濾鏡',
+    children: [
+      {
+        text: '灰階',
+        action: MenuAction.GRAYSCALE
+      },
+      {
+        text: '負片',
+        action: MenuAction.INVERT
+      },
+      {
+        text: '模糊',
+        action: MenuAction.BLUR
+      },
+      {
+        text: '油畫',
+        action: MenuAction.OIL_PAINTING
+      },
+      {
+        text: '黑白',
+        action: MenuAction.BLACK_AND_WHITE
       }
     ]
   }

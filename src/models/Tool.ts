@@ -27,4 +27,6 @@ export abstract class Tool {
   abstract mouseout(e: MouseEvent): void
 
   abstract mousePreview(e: MouseEvent): void
+
+  beforeSwitch(): void {}
 }

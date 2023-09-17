@@ -32,6 +32,12 @@ English ｜[繁體中文](https://github.com/LaiJunBin/web-image-editor/blob/mai
     - [x] Seal image: Upload seal image and select it
   - [x] Selection tool: Select area on canvas, then you can ctrl+j to copy and paste it to new layer
   - [x] Cursor tool: Select object on canvas, then you can move, resize and rotate it
+- [x] Filter
+  - [x] Grayscale: Convert selected area to grayscale
+  - [x] Invert: Convert selected area to invert
+  - [x] Blur: Blur selected area
+  - [x] Oil paint: Apply oil paint filter to selected area
+  - [x] Black and white: Convert selected area to black and white
 - [x] Layer
   - [x] Add layer: Add new layer
   - [x] Delete layer: Delete layer

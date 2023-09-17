@@ -5,7 +5,12 @@ import {
   saveProject,
   saveImage,
   undo,
-  redo
+  redo,
+  grayscale,
+  invert,
+  blur,
+  oilPainting,
+  blackAndWhite
 } from '@/utils/menu-action'
 import { MenuAction, createMenuAction } from '../menu-action'
 import { MenuAction as MenuActionConst } from '@/const/menu-action'
@@ -19,7 +24,13 @@ const mappedMenuAction: {
   [MenuActionConst.SAVE_PROJECT]: saveProject,
   [MenuActionConst.SAVE_IMAGE]: saveImage,
   [MenuActionConst.UNDO]: undo,
-  [MenuActionConst.REDO]: redo
+  [MenuActionConst.REDO]: redo,
+
+  [MenuActionConst.GRAYSCALE]: grayscale,
+  [MenuActionConst.INVERT]: invert,
+  [MenuActionConst.BLUR]: blur,
+  [MenuActionConst.OIL_PAINTING]: oilPainting,
+  [MenuActionConst.BLACK_AND_WHITE]: blackAndWhite
 }
 
 vi.mock('@/utils/menu-action', () => ({
@@ -29,7 +40,12 @@ vi.mock('@/utils/menu-action', () => ({
   saveProject: vi.fn(),
   saveImage: vi.fn(),
   undo: vi.fn(),
-  redo: vi.fn()
+  redo: vi.fn(),
+  grayscale: vi.fn(),
+  invert: vi.fn(),
+  blur: vi.fn(),
+  oilPainting: vi.fn(),
+  blackAndWhite: vi.fn()
 }))
 
 describe('menu-action', () => {

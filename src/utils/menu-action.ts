@@ -7,6 +7,7 @@ import { base64ToImageData, imageData2Base64 } from '.'
 import { LayerObject } from '@/models/LayerObject'
 import { toRefs } from 'vue'
 import { Layer } from '@/models/Layer'
+import { useSelectionStore } from '@/stores/selection'
 
 export function newProject() {
   const { openModal } = useModalStore()
@@ -180,4 +181,221 @@ export function undo() {
 export function redo() {
   const { redo } = useHistoryStore()
   redo()
+}
+
+function applyFilter(callback: (imageData: ImageData) => ImageData) {
+  const { selection } = useSelectionStore()
+  const { currentLayer, backgroundLayer } = useLayerStore()
+  const { commitHistory } = useHistoryStore()
+  if (!selection || !currentLayer) return
+
+  const commits: (() => void)[] = []
+  const rollbacks: (() => void)[] = []
+  if (currentLayer === backgroundLayer) {
+    const imageData = backgroundLayer.backgroundCtx.getImageData(
+      selection.x,
+      selection.y,
+      selection.width,
+      selection.height
+    )
+
+    const data = imageData.data
+    if (data.some((v) => v !== 0)) {
+      const copyImageData = backgroundLayer.backgroundCtx.createImageData(
+        selection.width,
+        selection.height
+      )
+      copyImageData.data.set(data)
+      const newImageData = callback(copyImageData)
+
+      commits.push(() => {
+        backgroundLayer.backgroundCtx.putImageData(newImageData, selection.x, selection.y)
+      })
+
+      rollbacks.push(() => {
+        backgroundLayer.backgroundCtx.putImageData(imageData, selection.x, selection.y)
+      })
+    }
+  }
+
+  currentLayer.objects.forEach((object) => {
+    const { x, y, width, height } = object
+    if (
+      x + width < selection.x ||
+      x > selection.x + selection.width ||
+      y + height < selection.y ||
+      y > selection.y + selection.height
+    ) {
+      return
+    }
+
+    const imageData = object.ctx.getImageData(
+      selection.x - x,
+      selection.y - y,
+      selection.width,
+      selection.height
+    )
+
+    const copyImageData = object.ctx.createImageData(selection.width, selection.height)
+    copyImageData.data.set(imageData.data)
+    const newImageData = callback(copyImageData)
+
+    commits.push(() => {
+      object.ctx.putImageData(newImageData, selection.x - x, selection.y - y)
+    })
+
+    rollbacks.push(() => {
+      object.ctx.putImageData(imageData, selection.x - x, selection.y - y)
+    })
+  })
+
+  if (commits.length === 0) return
+
+  commitHistory(
+    () => {
+      commits.forEach((commit) => commit())
+      currentLayer.render()
+    },
+    () => {
+      rollbacks.forEach((rollback) => rollback())
+      currentLayer.render()
+    }
+  )
+}
+
+export function grayscale() {
+  applyFilter((imageData) => {
+    const data = imageData.data
+
+    for (let i = 0; i < data.length; i += 4) {
+      const avg = (data[i] + data[i + 1] + data[i + 2]) / 3
+      data[i] = avg
+      data[i + 1] = avg
+      data[i + 2] = avg
+    }
+
+    return imageData
+  })
+}
+
+export function invert() {
+  applyFilter((imageData) => {
+    const data = imageData.data
+
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = 255 - data[i]
+      data[i + 1] = 255 - data[i + 1]
+      data[i + 2] = 255 - data[i + 2]
+    }
+
+    return imageData
+  })
+}
+
+export function blur() {
+  applyFilter((imageData) => {
+    const data = imageData.data
+    const width = imageData.width
+    const height = imageData.height
+    const newData = new Uint8ClampedArray(data.length)
+
+    for (let i = 0; i < data.length; i++) {
+      if (i % 4 === 3) {
+        newData[i] = data[i]
+        continue
+      }
+      const x = (i / 4) % width
+      const y = Math.floor(i / 4 / width)
+
+      let avg = 0
+      let count = 0
+      for (let j = -5; j <= 5; j++) {
+        for (let k = -5; k <= 5; k++) {
+          const newX = x + j
+          const newY = y + k
+          if (newX < 0 || newX >= width || newY < 0 || newY >= height) continue
+
+          const index = (newY * width + newX) * 4
+          avg += data[index]
+          count++
+        }
+      }
+
+      avg /= count
+
+      newData[i] = avg
+    }
+
+    return new ImageData(newData, width, height)
+  })
+}
+
+export function oilPainting() {
+  applyFilter((imageData) => {
+    const data = imageData.data
+    const width = imageData.width
+    const height = imageData.height
+    const newData = new Uint8ClampedArray(data.length)
+
+    for (let i = 0; i < data.length; i++) {
+      if (i % 4 === 3) {
+        newData[i] = data[i]
+        continue
+      }
+      const x = (i / 4) % width
+      const y = Math.floor(i / 4 / width)
+
+      const countMap = new Map<number, number>()
+      for (let j = -2; j <= 2; j++) {
+        for (let k = -2; k <= 2; k++) {
+          const newX = x + j
+          const newY = y + k
+          if (newX < 0 || newX >= width || newY < 0 || newY >= height) continue
+
+          const index = (newY * width + newX) * 4
+          const color = data[index]
+          if (countMap.has(color)) {
+            countMap.set(color, countMap.get(color)! + 1)
+          } else {
+            countMap.set(color, 1)
+          }
+        }
+      }
+
+      let maxCount = 0
+      let maxColor = 0
+      countMap.forEach((count, color) => {
+        if (count > maxCount) {
+          maxCount = count
+          maxColor = color
+        }
+      })
+
+      newData[i] = maxColor
+    }
+
+    return new ImageData(newData, width, height)
+  })
+}
+
+export function blackAndWhite() {
+  applyFilter((imageData) => {
+    const data = imageData.data
+    const width = imageData.width
+    const height = imageData.height
+    const newData = new Uint8ClampedArray(data.length)
+
+    for (let i = 0; i < data.length; i += 4) {
+      const x = (i / 4) % width
+      const y = Math.floor(i / 4 / width)
+
+      const index = (y * width + x) * 4
+      newData[i] = data[index] > 128 ? 255 : 0
+      newData[i + 1] = data[index] > 128 ? 255 : 0
+      newData[i + 2] = data[index] > 128 ? 255 : 0
+      newData[i + 3] = data[index + 3]
+    }
+
+    return new ImageData(newData, width, height)
+  })
 }
