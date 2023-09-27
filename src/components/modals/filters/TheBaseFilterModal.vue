@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { functionToString } from '@/utils'
 import { getSelectedObjectsImageDataAndCtx, previewFilter, applyFilter } from '@/utils/menu-action'
 import { useLayerStore } from '@/stores/layer'
+import Worker from '@/workers/worker?worker'
 
 interface Props {
   title: string
@@ -15,7 +16,7 @@ const props = defineProps<Props>()
 
 const { closeModal } = useModalStore()
 
-const worker = new Worker('src/workers/worker.ts', { type: 'module' })
+const worker = new Worker()
 const applyFunc = ref(() => {})
 worker.onmessage = (e) => {
   const { newObjectsImageData } = e.data
