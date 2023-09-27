@@ -1,4 +1,6 @@
 import NewProjectModalVue from '@/components/modals/NewProjectModal.vue'
+import TheBlurFilterModal from '@/components/modals/filters/TheBlurFilterModal.vue'
+import TheOilPaintingModal from '@/components/modals/filters/TheOilPaintingModal.vue'
 import { useModalStore } from '@/stores/modal'
 import { useHistoryStore } from '@/stores/history'
 import { useSettingStore } from '@/stores/setting'
@@ -183,71 +185,117 @@ export function redo() {
   redo()
 }
 
-function applyFilter(callback: (imageData: ImageData) => ImageData) {
-  const { selection } = useSelectionStore()
+export function getSelectedObjectsImageDataAndCtx(): {
+  imageData: ImageData
+  ctx: CanvasRenderingContext2D
+  x: number
+  y: number
+}[] {
+  const { selection, setSelection } = toRefs(useSelectionStore())
   const { currentLayer, backgroundLayer } = useLayerStore()
-  const { commitHistory } = useHistoryStore()
-  if (!selection || !currentLayer) return
+  if (!currentLayer) return []
+  if (!selection.value) {
+    setSelection.value(0, 0, currentLayer.ctx.canvas.width, currentLayer.ctx.canvas.height)
+  }
 
-  const commits: (() => void)[] = []
-  const rollbacks: (() => void)[] = []
+  const output = []
   if (currentLayer === backgroundLayer) {
     const imageData = backgroundLayer.backgroundCtx.getImageData(
-      selection.x,
-      selection.y,
-      selection.width,
-      selection.height
+      selection.value!.x,
+      selection.value!.y,
+      selection.value!.width,
+      selection.value!.height
     )
 
     const data = imageData.data
     if (data.some((v) => v !== 0)) {
       const copyImageData = backgroundLayer.backgroundCtx.createImageData(
-        selection.width,
-        selection.height
+        selection.value!.width,
+        selection.value!.height
       )
       copyImageData.data.set(data)
-      const newImageData = callback(copyImageData)
-
-      commits.push(() => {
-        backgroundLayer.backgroundCtx.putImageData(newImageData, selection.x, selection.y)
-      })
-
-      rollbacks.push(() => {
-        backgroundLayer.backgroundCtx.putImageData(imageData, selection.x, selection.y)
+      output.push({
+        imageData: copyImageData,
+        ctx: backgroundLayer.backgroundCtx,
+        x: selection.value!.x,
+        y: selection.value!.y
       })
     }
   }
 
-  currentLayer.objects.forEach((object) => {
-    const { x, y, width, height } = object
-    if (
-      x + width < selection.x ||
-      x > selection.x + selection.width ||
-      y + height < selection.y ||
-      y > selection.y + selection.height
-    ) {
-      return
-    }
+  return output.concat(
+    currentLayer.objects
+      .filter((object) => {
+        const { x, y, width, height } = object
+        return !(
+          x + width < selection.value!.x ||
+          x > selection.value!.x + selection.value!.width ||
+          y + height < selection.value!.y ||
+          y > selection.value!.y + selection.value!.height
+        )
+      })
+      .map((object) => {
+        const { x, y } = object
+        const imageData = object.ctx.getImageData(
+          selection.value!.x - x,
+          selection.value!.y - y,
+          selection.value!.width,
+          selection.value!.height
+        )
 
-    const imageData = object.ctx.getImageData(
-      selection.x - x,
-      selection.y - y,
-      selection.width,
-      selection.height
-    )
+        const copyImageData = object.ctx.createImageData(
+          selection.value!.width,
+          selection.value!.height
+        )
+        copyImageData.data.set(imageData.data)
+        return {
+          imageData: copyImageData,
+          ctx: object.ctx,
+          x: selection.value!.x - x,
+          y: selection.value!.y - y
+        }
+      })
+  )
+}
 
-    const copyImageData = object.ctx.createImageData(selection.width, selection.height)
-    copyImageData.data.set(imageData.data)
-    const newImageData = callback(copyImageData)
+export function previewFilter(newObjectsImageData: ImageData[]) {
+  const { currentLayer } = useLayerStore()
+  const objects = getSelectedObjectsImageDataAndCtx()
+  if (!currentLayer || !objects.length) return
 
+  for (let i = 0; i < newObjectsImageData.length; i++) {
+    const newImageData = newObjectsImageData[i]
+    const { ctx, x, y } = objects[i]
+    ctx.putImageData(newImageData, x, y)
+  }
+
+  currentLayer.render()
+  for (let i = 0; i < newObjectsImageData.length; i++) {
+    const { imageData, ctx, x, y } = objects[i]
+    ctx.putImageData(imageData, x, y)
+  }
+}
+
+export function applyFilter(newObjectsImageData: ImageData[]) {
+  const { currentLayer } = useLayerStore()
+  const objects = getSelectedObjectsImageDataAndCtx()
+  if (!currentLayer || !objects.length) return
+
+  const { commitHistory } = useHistoryStore()
+  const commits: (() => void)[] = []
+  const rollbacks: (() => void)[] = []
+
+  for (let i = 0; i < newObjectsImageData.length; i++) {
+    const newImageData = newObjectsImageData[i]
+    const { imageData, ctx, x, y } = objects[i]
     commits.push(() => {
-      object.ctx.putImageData(newImageData, selection.x - x, selection.y - y)
+      ctx.putImageData(newImageData, x, y)
     })
 
     rollbacks.push(() => {
-      object.ctx.putImageData(imageData, selection.x - x, selection.y - y)
+      ctx.putImageData(imageData, x, y)
     })
-  })
+  }
 
   if (commits.length === 0) return
 
@@ -264,138 +312,66 @@ function applyFilter(callback: (imageData: ImageData) => ImageData) {
 }
 
 export function grayscale() {
-  applyFilter((imageData) => {
+  const objects = getSelectedObjectsImageDataAndCtx()
+  const objectsImageData = objects.map((object) => object.imageData)
+  objectsImageData.forEach((imageData: ImageData) => {
     const data = imageData.data
-
     for (let i = 0; i < data.length; i += 4) {
       const avg = (data[i] + data[i + 1] + data[i + 2]) / 3
       data[i] = avg
       data[i + 1] = avg
       data[i + 2] = avg
     }
-
-    return imageData
   })
+
+  applyFilter(objectsImageData)
 }
 
 export function invert() {
-  applyFilter((imageData) => {
+  const objects = getSelectedObjectsImageDataAndCtx()
+  const objectsImageData = objects.map((object) => object.imageData)
+  objectsImageData.forEach((imageData: ImageData) => {
     const data = imageData.data
-
     for (let i = 0; i < data.length; i += 4) {
       data[i] = 255 - data[i]
       data[i + 1] = 255 - data[i + 1]
       data[i + 2] = 255 - data[i + 2]
     }
-
-    return imageData
   })
+
+  applyFilter(objectsImageData)
 }
 
 export function blur() {
-  applyFilter((imageData) => {
-    const data = imageData.data
-    const width = imageData.width
-    const height = imageData.height
-    const newData = new Uint8ClampedArray(data.length)
-
-    for (let i = 0; i < data.length; i++) {
-      if (i % 4 === 3) {
-        newData[i] = data[i]
-        continue
-      }
-      const x = (i / 4) % width
-      const y = Math.floor(i / 4 / width)
-
-      let avg = 0
-      let count = 0
-      for (let j = -5; j <= 5; j++) {
-        for (let k = -5; k <= 5; k++) {
-          const newX = x + j
-          const newY = y + k
-          if (newX < 0 || newX >= width || newY < 0 || newY >= height) continue
-
-          const index = (newY * width + newX) * 4
-          avg += data[index]
-          count++
-        }
-      }
-
-      avg /= count
-
-      newData[i] = avg
-    }
-
-    return new ImageData(newData, width, height)
-  })
+  const { openModal } = useModalStore()
+  openModal(<TheBlurFilterModal />)
 }
 
 export function oilPainting() {
-  applyFilter((imageData) => {
-    const data = imageData.data
-    const width = imageData.width
-    const height = imageData.height
-    const newData = new Uint8ClampedArray(data.length)
-
-    for (let i = 0; i < data.length; i++) {
-      if (i % 4 === 3) {
-        newData[i] = data[i]
-        continue
-      }
-      const x = (i / 4) % width
-      const y = Math.floor(i / 4 / width)
-
-      const countMap = new Map<number, number>()
-      for (let j = -2; j <= 2; j++) {
-        for (let k = -2; k <= 2; k++) {
-          const newX = x + j
-          const newY = y + k
-          if (newX < 0 || newX >= width || newY < 0 || newY >= height) continue
-
-          const index = (newY * width + newX) * 4
-          const color = data[index]
-          if (countMap.has(color)) {
-            countMap.set(color, countMap.get(color)! + 1)
-          } else {
-            countMap.set(color, 1)
-          }
-        }
-      }
-
-      let maxCount = 0
-      let maxColor = 0
-      countMap.forEach((count, color) => {
-        if (count > maxCount) {
-          maxCount = count
-          maxColor = color
-        }
-      })
-
-      newData[i] = maxColor
-    }
-
-    return new ImageData(newData, width, height)
-  })
+  const { openModal } = useModalStore()
+  openModal(<TheOilPaintingModal />)
 }
 
 export function blackAndWhite() {
-  applyFilter((imageData) => {
+  const objects = getSelectedObjectsImageDataAndCtx()
+  const objectsImageData = objects.map((object) => object.imageData)
+  const newObjectsImageData: ImageData[] = []
+  objectsImageData.forEach((imageData: ImageData) => {
     const data = imageData.data
     const width = imageData.width
     const height = imageData.height
     const newData = new Uint8ClampedArray(data.length)
-
     for (let i = 0; i < data.length; i += 4) {
       const x = (i / 4) % width
       const y = Math.floor(i / 4 / width)
-
       const index = (y * width + x) * 4
       newData[i] = data[index] > 128 ? 255 : 0
       newData[i + 1] = data[index] > 128 ? 255 : 0
       newData[i + 2] = data[index] > 128 ? 255 : 0
       newData[i + 3] = data[index + 3]
     }
-
-    return new ImageData(newData, width, height)
+    newObjectsImageData.push(new ImageData(newData, width, height))
   })
+
+  applyFilter(newObjectsImageData)
 }

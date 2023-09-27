@@ -26,9 +26,11 @@ class SelectionTool extends Tool {
 
   clear() {
     const { recordLayer } = useLayerStore()
+    const { clearSelection } = useSelectionStore()
     if (!recordLayer) return
     const { ctx } = recordLayer
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    clearSelection()
   }
 
   mouseover(e: MouseEvent) {}
@@ -38,6 +40,8 @@ class SelectionTool extends Tool {
     this.drawing = true
     this.startX = e.offsetX
     this.startY = e.offsetY
+    this.width = 0
+    this.height = 0
   }
 
   mousemove(e: MouseEvent) {
@@ -73,9 +77,16 @@ class SelectionTool extends Tool {
   }
 
   mouseup(e: MouseEvent) {
-    this.drawing = false
     const { setSelection } = useSelectionStore()
-    setSelection(this.startX, this.startY, this.width, this.height)
+
+    this.drawing = false
+    if (this.width && this.height) {
+      if (this.width < 1 || this.height < 1) {
+        this.clear()
+      } else {
+        setSelection(this.startX, this.startY, this.width, this.height)
+      }
+    }
   }
 
   copyToLayer() {
@@ -111,6 +122,26 @@ class SelectionTool extends Tool {
     this.startY = 0
     this.width = 0
     this.height = 0
+  }
+
+  selectAll() {
+    const { recordLayer } = useLayerStore()
+    if (!recordLayer) return
+    const { left, top } = recordLayer.ctx.canvas.getBoundingClientRect()
+
+    this.mousedown(
+      new MouseEvent('mousedown', {
+        clientX: 0,
+        clientY: 0
+      })
+    )
+    this.mousemove(
+      new MouseEvent('mousemove', {
+        clientX: left + recordLayer.ctx.canvas.width,
+        clientY: top + recordLayer.ctx.canvas.height
+      })
+    )
+    this.mouseup(new MouseEvent('mouseup'))
   }
 
   mouseout(e: MouseEvent) {}

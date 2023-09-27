@@ -84,3 +84,14 @@ export function getTransparentCanvas(width: number, height: number) {
   }
   return { canvas, ctx }
 }
+
+export function functionToString(func: CallableFunction) {
+  const name = func.name
+  const string = func.toString()
+
+  return {
+    name,
+    args: string.substring(string.indexOf('(') + 1, string.indexOf(')')),
+    body: string.substring(string.indexOf('{') + 1, string.lastIndexOf('}'))
+  }
+}
