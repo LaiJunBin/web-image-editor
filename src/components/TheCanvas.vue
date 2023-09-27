@@ -20,7 +20,7 @@ const createLayerRef = (layer: Layer) => {
 
 const onWheel = async (e: WheelEvent) => {
   const delta = e.deltaY
-  settings.scale = settings.scale - delta / 10
+  settings.scale = settings.scale - Math.floor(delta / 10)
   await nextTick()
 
   recordLayer.value?.updateBoundingRect()
